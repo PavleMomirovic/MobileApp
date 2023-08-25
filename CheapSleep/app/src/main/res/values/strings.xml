@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">CheapSleep</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="list_fragment_label">List Fragment</string>
+    <string name="create_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_list_fragment">Hello first fragment</string>
+    <string name="hello_create_fragment">Hello second fragment. Arg: %1$s</string>
+
+    <string name="show_map">Show Map</string>
+    <string name="new_place">New Place</string>
+    <string name="my_places_list">My Places List</string>
+    <string name="about">About</string>
+    <string name="name">name</string>
+    <string name="description">description</string>
+    <string name="add">add</string>
+    <string name="cancel">cancel</string>
+</resources>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/ListFragment">
+
+    <fragment
+        android:id="@+id/ListFragment"
+        android:name="com.example.cheapsleep.ListFragment"
+        android:label="@string/list_fragment_label"
+        tools:layout="@layout/fragment_list">
+
+        <action
+            android:id="@+id/action_ListFragment_to_CreateFragment"
+            app:destination="@id/CreateFragment" />
+<!--        <action-->
+<!--            android:id="@+id/action_ListFragment_to_ViewFragment"-->
+<!--            app:destination="@+id/ViewFragment"/>-->
+<!--        <action-->
+<!--            android:id="@+id/action_SecondFragment_to_MapFragment"-->
+<!--            app:destination="@+id/MapFragment" />-->
+    </fragment>
+    <fragment
+        android:id="@+id/CreateFragment"
+        android:name="com.example.cheapsleep.CreateFragment"
+        android:label="@string/create_fragment_label"
+        tools:layout="@layout/fragment_create">
+
+        <action
+            android:id="@+id/actionCreateFragment_to_ListFragment"
+            app:destination="@id/ListFragment" />
+    </fragment>
+<!--    <fragment-->
+<!--        android:id="@+id/ViewFragment"-->
+<!--        android:name="com.example.milan.lab2.EditFragment"-->
+<!--        android:label="View My Place"-->
+<!--        tools:layout="@layout/fragment_view">-->
+
+<!--    </fragment>-->
+<!--    <fragment-->
+<!--        android:id="@+id/MapFragment"-->
+<!--        android:name="com.example.milan.lab2.MapFragment"-->
+<!--        android:label="@string/map_fragment_label"-->
+<!--        tools:layout="@layout/fragment_map">-->
+
+<!--        <action-->
+<!--            android:id="@+id/action_MapFtagment_to_EditFragment"-->
+<!--            app:destination="@+id/EditFragment"/>-->
+<!--    </fragment>-->
+</navigation>
