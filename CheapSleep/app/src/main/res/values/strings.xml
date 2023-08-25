@@ -2,8 +2,8 @@
     <string name="app_name">CheapSleep</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="list_fragment_label">List Fragment</string>
-    <string name="create_fragment_label">Second Fragment</string>
+    <string name="list_fragment_label">List of places</string>
+    <string name="create_fragment_label">Create new place</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
 
@@ -18,4 +18,7 @@
     <string name="description">description</string>
     <string name="add">add</string>
     <string name="cancel">cancel</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="map_fragment_label">View map</string>
 </resources>

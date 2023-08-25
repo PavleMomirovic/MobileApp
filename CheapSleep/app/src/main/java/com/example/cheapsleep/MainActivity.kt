@@ -53,7 +53,10 @@ class MainActivity : AppCompatActivity() {
                 if(navController.currentDestination?.id==R.id.ListFragment)
                     navController.navigate(R.id.action_ListFragment_to_CreateFragment)
             }
-            R.id.action_show_map -> Toast.makeText(this, "Show me the map!", Toast.LENGTH_SHORT).show()
+            R.id.action_show_map -> {
+                if(navController.currentDestination?.id==R.id.ListFragment)
+                    navController.navigate(R.id.action_ListFragment_to_MapFragment)
+            }
             R.id.action_about -> Toast.makeText(this, "About the app!", Toast.LENGTH_SHORT).show()
         }
         return super.onOptionsItemSelected(item)
