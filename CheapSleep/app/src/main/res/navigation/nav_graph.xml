@@ -30,6 +30,9 @@
         <action
             android:id="@+id/actionCreateFragment_to_ListFragment"
             app:destination="@id/ListFragment" />
+        <action
+            android:id="@+id/actionCreateFragment_to_MapFragment"
+            app:destination="@id/MapFragment" />
     </fragment>
 <!--    <fragment-->
 <!--        android:id="@+id/ViewFragment"-->

@@ -33,8 +33,10 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
+            if(navController.currentDestination?.id==R.id.ListFragment)
+                navController.navigate(R.id.action_ListFragment_to_CreateFragment)
+            else if(navController.currentDestination?.id==R.id.MapFragment)
+                navController.navigate(R.id.action_MapFragment_to_CreateFragment)
         }
     }
 

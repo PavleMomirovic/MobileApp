@@ -7,17 +7,22 @@ import android.view.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
+import com.example.cheapsleep.model.LocationViewModel
 import org.osmdroid.views.MapView
 import org.osmdroid.config.Configuration
+import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 
 
 class MapFragment : Fragment() {
     lateinit var map:MapView
+    private val locationViewModel: LocationViewModel by activityViewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -48,6 +53,7 @@ class MapFragment : Fragment() {
             )
         } else {
             setMyLocationOverlay()
+            setOnMapClickOverlay()
         }
         map.controller.setZoom(15.0)
         val startPoint=GeoPoint(43.32,21.89)
@@ -66,8 +72,26 @@ class MapFragment : Fragment() {
         ) { isGranted:Boolean ->
             if(isGranted){
                 setMyLocationOverlay()
+                setOnMapClickOverlay()
             }
         }
+    private fun setOnMapClickOverlay(){
+        var receive=object:MapEventsReceiver{
+            override fun singleTapConfirmedHelper(p: GeoPoint?): Boolean {
+                var lon=p!!.longitude.toString()
+                var lat=p!!.latitude.toString()
+                locationViewModel.setLocation(lon,lat)
+                findNavController().popBackStack()
+                return true
+            }
+
+            override fun longPressHelper(p: GeoPoint?): Boolean {
+                return false
+            }
+        }
+        var overlayEvents=MapEventsOverlay(receive)
+        map.overlays.add(overlayEvents)
+    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when(item.itemId){
