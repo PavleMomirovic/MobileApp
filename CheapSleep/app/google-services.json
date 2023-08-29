@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "162921619454",
+    "project_id": "cheapsleepdemo",
+    "storage_bucket": "cheapsleepdemo.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:162921619454:android:5a4357a508634f44b0eaaf",
+        "android_client_info": {
+          "package_name": "com.example.cheapsleep"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "162921619454-pctjm0t2l6ouv276pu57m9s8ei7404r2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.cheapsleep",
+            "certificate_hash": "98b1384e6dd895d54653325c4eabc9b02e7f7748"
+          }
+        },
+        {
+          "client_id": "162921619454-5pc336evtucvci8p6bpcp96m1uuf5kr0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAR_LrC-Pu5qQ0WDVhsSCDwhF8e4y6IR4M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "162921619454-5pc336evtucvci8p6bpcp96m1uuf5kr0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

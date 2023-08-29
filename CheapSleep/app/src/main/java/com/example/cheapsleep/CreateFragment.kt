@@ -44,7 +44,7 @@ class CreateFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         super.onViewCreated(view, savedInstanceState)
-        val editName: EditText = requireView().findViewById<EditText>(R.id.editText)
+        val editName: EditText = requireView().findViewById<EditText>(R.id.editText2)
         val editLongitude:EditText=requireView().findViewById<EditText>(R.id.edit_longitude)
         val editLatitude:EditText=requireView().findViewById<EditText>(R.id.edit_latitude)
         val lonObserver= Observer<String>{ newValue->

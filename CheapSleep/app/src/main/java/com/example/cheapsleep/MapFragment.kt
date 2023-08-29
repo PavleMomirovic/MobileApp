@@ -11,6 +11,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import com.example.cheapsleep.model.LocationViewModel
+import com.example.cheapsleep.model.PlacesListView
 import org.osmdroid.views.MapView
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapEventsReceiver
@@ -52,12 +53,26 @@ class MapFragment : Fragment() {
                 android.Manifest.permission.ACCESS_FINE_LOCATION
             )
         } else {
-            setMyLocationOverlay()
+            setupMap()
+//            setMyLocationOverlay()
+//            setOnMapClickOverlay()
+        }
+//        map.controller.setZoom(15.0)
+//        val startPoint=GeoPoint(43.32,21.89)
+//        map.controller.setCenter(startPoint)
+    }
+
+    private fun setupMap(){
+        var startPoint:GeoPoint=GeoPoint(43.32,21.89)
+        map.controller.setZoom(15.0)
+        if(locationViewModel.setLocation){
             setOnMapClickOverlay()
         }
-        map.controller.setZoom(15.0)
-        val startPoint=GeoPoint(43.32,21.89)
-        map.controller.setCenter(startPoint)
+        else{
+//            ovde da se doda za selected u PlacesListView
+            setMyLocationOverlay()
+        }
+        map.controller.animateTo(startPoint)
     }
 
     private fun setMyLocationOverlay(){
@@ -71,8 +86,8 @@ class MapFragment : Fragment() {
             ActivityResultContracts.RequestPermission()
         ) { isGranted:Boolean ->
             if(isGranted){
-                setMyLocationOverlay()
                 setOnMapClickOverlay()
+                setMyLocationOverlay()
             }
         }
     private fun setOnMapClickOverlay(){

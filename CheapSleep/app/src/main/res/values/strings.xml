@@ -23,5 +23,14 @@
     <string name="map_fragment_label">View map</string>
     <string name="edit_latitude">Edit latitude</string>
     <string name="edit_longitude">Edit longitude</string>
-    <string name="edit_location_set_button">Set</string>
+    <string name="edit_location_set_button">Set location</string>
+    <string name="edit_price">Cena</string>
+
+    <string-array name="TypesOfPlaces">
+        <item>Hostel</item>
+        <item>Apartman</item>
+        <item>Motel</item>
+        <item>Soba</item>
+        <item>Drugo</item>
+    </string-array>
 </resources>
