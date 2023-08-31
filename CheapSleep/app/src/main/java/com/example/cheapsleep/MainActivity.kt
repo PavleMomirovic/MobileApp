@@ -32,6 +32,14 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
+        navController.addOnDestinationChangedListener { controller, destination, arguments ->
+            if(destination.id==R.id.CreateFragment || destination.id==R.id.ViewPlaceFragment)
+                binding.fab.hide()
+            else
+                binding.fab.show()
+
+        }
+
         binding.fab.setOnClickListener { view ->
             if(navController.currentDestination?.id==R.id.ListFragment)
                 navController.navigate(R.id.action_ListFragment_to_CreateFragment)

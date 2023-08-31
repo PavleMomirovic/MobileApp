@@ -14,9 +14,9 @@
         <action
             android:id="@+id/action_ListFragment_to_CreateFragment"
             app:destination="@id/CreateFragment" />
-<!--        <action-->
-<!--            android:id="@+id/action_ListFragment_to_ViewFragment"-->
-<!--            app:destination="@+id/ViewFragment"/>-->
+        <action
+            android:id="@+id/action_ListFragment_to_ViewPlaceFragment"
+            app:destination="@+id/ViewPlaceFragment"/>
         <action
             android:id="@+id/action_ListFragment_to_MapFragment"
             app:destination="@+id/MapFragment" />
@@ -34,13 +34,6 @@
             android:id="@+id/actionCreateFragment_to_MapFragment"
             app:destination="@id/MapFragment" />
     </fragment>
-<!--    <fragment-->
-<!--        android:id="@+id/ViewFragment"-->
-<!--        android:name="com.example.milan.lab2.EditFragment"-->
-<!--        android:label="View My Place"-->
-<!--        tools:layout="@layout/fragment_view">-->
-
-<!--    </fragment>-->
     <fragment
         android:id="@+id/MapFragment"
         android:name="com.example.cheapsleep.MapFragment"
@@ -50,5 +43,15 @@
         <action
             android:id="@+id/action_MapFragment_to_CreateFragment"
             app:destination="@+id/CreateFragment"/>
+    </fragment>
+    <fragment
+        android:id="@+id/ViewPlaceFragment"
+        android:name="com.example.cheapsleep.ViewPlaceFragment"
+        android:label="@string/view_fragment_label"
+        tools:layout="@layout/fragment_map">
+
+        <action
+            android:id="@+id/action_ViewPlaceFragment_to_ListFragment"
+            app:destination="@+id/ListFragment"/>
     </fragment>
 </navigation>

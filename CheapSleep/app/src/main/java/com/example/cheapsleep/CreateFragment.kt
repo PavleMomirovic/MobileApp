@@ -1,22 +1,23 @@
 package com.example.cheapsleep
 
+//import com.google.android.material.navigation.NavigationBarView
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.*
-import androidx.fragment.app.Fragment
-import android.widget.AdapterView
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.example.cheapsleep.data.Place
+import com.example.cheapsleep.data.UserObject
 import com.example.cheapsleep.databinding.FragmentCreateBinding
 import com.example.cheapsleep.model.LocationViewModel
 import com.example.cheapsleep.model.PlacesListView
-import com.google.android.material.navigation.NavigationBarView
+import java.util.*
 
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.
@@ -51,6 +52,16 @@ class CreateFragment : Fragment() {
         val dropDown : Spinner = requireView().findViewById(R.id.spinner)
         var typeSelected:String = "No type selected"
         val editPrice:EditText=requireView().findViewById(R.id.edit_price)
+
+        if(myPlacesViewModel.selected!=null){
+            editName.setText(myPlacesViewModel.selected?.name)
+            editDesc.setText(myPlacesViewModel.selected?.description)
+            editPrice.setText(myPlacesViewModel.selected?.price)
+            editLongitude.setText(myPlacesViewModel.selected?.longitude)
+            editLatitude.setText(myPlacesViewModel.selected?.latitude)
+            dropDown.setSelection(getIndex(dropDown, myPlacesViewModel.selected?.type)) //please work
+        }
+
         val lonObserver= Observer<String>{ newValue->
             editLongitude.setText((newValue.toString()))
         }
@@ -61,8 +72,14 @@ class CreateFragment : Fragment() {
         locationViewModel.latitude.observe(viewLifecycleOwner,latObserver)
         val addButton: Button = requireView().findViewById(R.id.button2)
         addButton.isEnabled=false
+        if(myPlacesViewModel.selected!=null) {
+            addButton.setText(R.string.edit_save_btn)
+            addButton.isEnabled=true
+        }
+
         val cancelButton: Button = requireView().findViewById(R.id.button)
         val setButton:Button=requireView().findViewById<Button>(R.id.edit_location_btn)
+
         setButton.setOnClickListener{
             locationViewModel.setLocation=true
             findNavController().navigate(R.id.actionCreateFragment_to_MapFragment)
@@ -85,6 +102,7 @@ class CreateFragment : Fragment() {
             val longitude: String = editLongitude.text.toString()
             val latitude: String = editLatitude.text.toString()
             val price:String= editPrice.text.toString()
+            typeSelected = dropDown.selectedItem.toString()
 
             if(myPlacesViewModel.selected!=null){
                 myPlacesViewModel.selected?.name=name
@@ -93,9 +111,12 @@ class CreateFragment : Fragment() {
                 myPlacesViewModel.selected?.latitude=latitude
                 myPlacesViewModel.selected?.price=price
                 myPlacesViewModel.selected?.type=typeSelected
+                myPlacesViewModel.selected?.author= UserObject.username.toString()
+                myPlacesViewModel.selected?.date= Date()
+
             }
             else
-                myPlacesViewModel.addPlace(Place(name, desc,longitude,latitude,price,typeSelected))
+                myPlacesViewModel.addPlace(Place(name, desc,longitude,latitude,price,typeSelected, UserObject.username.toString(),Date()))
             myPlacesViewModel.selected=null
             locationViewModel.setLocation("","")
             findNavController().popBackStack()
@@ -110,24 +131,35 @@ class CreateFragment : Fragment() {
             //findNavController().navigate(R.id.action_EditFragment_to_ListFragment)
         }
 
-        dropDown.onItemSelectedListener = object : NavigationBarView.OnItemSelectedListener,
-            AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
-                if(parent.getItemAtPosition(position).toString()=="Choose accomodation type"){
+//        dropDown.onItemSelectedListener = object : AdapterView.OnItemSelectedListener,
+//            AdapterView.OnItemSelectedListener {
+//            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+//                if(parent.getItemAtPosition(position).toString()=="Choose accomodation type"){
+//
+//                }else{
+//                    typeSelected = parent.getItemAtPosition(position).toString()
+//                }
+//            }
+////            override fun onNothingSelected(p0: AdapterView<*>?) {
+////                TODO("Not yet implemented")
+////            }
+////
+////            override fun onNavigationItemSelected(item: MenuItem): Boolean {
+////                TODO("Not yet implemented")
+////            }
+//        }
 
-                }else{
-                    typeSelected = parent.getItemAtPosition(position).toString()
-                }
-            }
-            override fun onNothingSelected(p0: AdapterView<*>?) {
-                TODO("Not yet implemented")
-            }
 
-            override fun onNavigationItemSelected(item: MenuItem): Boolean {
-                TODO("Not yet implemented")
+    }
+
+    private fun getIndex(dropDown: Spinner, type: String?): Int {
+        for (i in 0 until dropDown.getCount()) {
+            if (dropDown.getItemAtPosition(i).toString() ==type) {  //please work
+                return i
             }
         }
 
+        return 0
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
@@ -137,6 +169,7 @@ class CreateFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        myPlacesViewModel.selected=null
 //        _binding = null
     }
 }

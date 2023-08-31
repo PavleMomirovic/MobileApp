@@ -39,6 +39,22 @@
     <string name="register_ok_btn">Register</string>
     <string name="registe_close_btn">Already have an account?</string>
 
+    <string name="list_fragment_autor_rb">Autor</string>
+    <string name="list_fragment_tip_rb">Tip</string>
+    <string name="list_fragment_ocena_rb">Ocena</string>
+    <string name="list_fragment_datum_rb">Datum</string>
+    <string name="list_fragment_format_label">Format datuma je: ddMMyyyy</string>
+    <string name="list_fragment_datumod_label">Datum od:</string>
+    <string name="list_fragment_datumdo_label">Datum do:</string>
+    <string name="list_fragment_ok_btn">OK</string>
+    <string name="list_fragment_reset_label">PONIŠTI</string>
+    <string name="viewmyplace_close_button">Close</string>
+    <string name="view_fragment_label">Place view</string>
+    <string name="popup_menu_view">View place</string>
+    <string name="popup_menu_edit">Edit</string>
+    <string name="popup_menu_show">Show on map</string>
+    <string name="edit_save_btn">Save</string>
+
     <string-array name="TypesOfPlaces">
         <item>Choose accomodation type</item>
         <item>Hostel</item>
