@@ -25,8 +25,22 @@
     <string name="edit_longitude">Edit longitude</string>
     <string name="edit_location_set_button">Set location</string>
     <string name="edit_price">Cena</string>
+    <string name="login_activity_login_button">Log in</string>
+    <string name="login_activity_register_button">Register</string>
+    <string name="login_activity_username_label">username</string>
+    <string name="login_activity_password_label">password</string>
+    <string name="register_username">username</string>
+    <string name="register_password">password</string>
+    <string name="register_name">Name</string>
+    <string name="register_surname">Surname</string>
+    <string name="register_phone">Phone number</string>
+    <string name="register_camera_btn">Camera</string>
+    <string name="register_gallery_btn">Gallery</string>
+    <string name="register_ok_btn">Register</string>
+    <string name="registe_close_btn">Already have an account?</string>
 
     <string-array name="TypesOfPlaces">
+        <item>Choose accomodation type</item>
         <item>Hostel</item>
         <item>Apartman</item>
         <item>Motel</item>

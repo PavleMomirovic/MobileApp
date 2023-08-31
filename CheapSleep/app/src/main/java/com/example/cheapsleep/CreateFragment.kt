@@ -3,13 +3,12 @@ package com.example.cheapsleep
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.View
-import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Spinner
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
@@ -17,6 +16,7 @@ import com.example.cheapsleep.data.Place
 import com.example.cheapsleep.databinding.FragmentCreateBinding
 import com.example.cheapsleep.model.LocationViewModel
 import com.example.cheapsleep.model.PlacesListView
+import com.google.android.material.navigation.NavigationBarView
 
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.
@@ -44,9 +44,13 @@ class CreateFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         super.onViewCreated(view, savedInstanceState)
-        val editName: EditText = requireView().findViewById<EditText>(R.id.editText2)
+        val editName: EditText = requireView().findViewById(R.id.editText2)
+        val editDesc: EditText = requireView().findViewById(R.id.editText)
         val editLongitude:EditText=requireView().findViewById<EditText>(R.id.edit_longitude)
         val editLatitude:EditText=requireView().findViewById<EditText>(R.id.edit_latitude)
+        val dropDown : Spinner = requireView().findViewById(R.id.spinner)
+        var typeSelected:String = "No type selected"
+        val editPrice:EditText=requireView().findViewById(R.id.edit_price)
         val lonObserver= Observer<String>{ newValue->
             editLongitude.setText((newValue.toString()))
         }
@@ -75,21 +79,23 @@ class CreateFragment : Fragment() {
             }
         })
         addButton.setOnClickListener {
-            val editName: EditText = requireView().findViewById(R.id.editText2)
-            val editDesc: EditText = requireView().findViewById(R.id.editText)
 
             val name: String = editName.text.toString()
             val desc: String = editDesc.text.toString()
             val longitude: String = editLongitude.text.toString()
             val latitude: String = editLatitude.text.toString()
+            val price:String= editPrice.text.toString()
+
             if(myPlacesViewModel.selected!=null){
                 myPlacesViewModel.selected?.name=name
                 myPlacesViewModel.selected?.description=desc
                 myPlacesViewModel.selected?.longitude=longitude
                 myPlacesViewModel.selected?.latitude=latitude
+                myPlacesViewModel.selected?.price=price
+                myPlacesViewModel.selected?.type=typeSelected
             }
             else
-                myPlacesViewModel.addPlace(Place(name, desc,longitude,latitude))
+                myPlacesViewModel.addPlace(Place(name, desc,longitude,latitude,price,typeSelected))
             myPlacesViewModel.selected=null
             locationViewModel.setLocation("","")
             findNavController().popBackStack()
@@ -103,6 +109,25 @@ class CreateFragment : Fragment() {
 
             //findNavController().navigate(R.id.action_EditFragment_to_ListFragment)
         }
+
+        dropDown.onItemSelectedListener = object : NavigationBarView.OnItemSelectedListener,
+            AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+                if(parent.getItemAtPosition(position).toString()=="Choose accomodation type"){
+
+                }else{
+                    typeSelected = parent.getItemAtPosition(position).toString()
+                }
+            }
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+                TODO("Not yet implemented")
+            }
+
+            override fun onNavigationItemSelected(item: MenuItem): Boolean {
+                TODO("Not yet implemented")
+            }
+        }
+
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
