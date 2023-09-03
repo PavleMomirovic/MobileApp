@@ -1,12 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".MapFragment">
 
     <org.osmdroid.views.MapView android:id="@+id/map"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tilesource="Mapnik"/>
-</FrameLayout>
+
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <RadioButton
+            android:id="@+id/svi_obj_radio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="Show all objects" />
+
+        <RadioButton
+            android:id="@+id/obj_with_radius_radio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Show objects in radius of " />
+    </RadioGroup>
+
+    <EditText
+        android:id="@+id/radius_et"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="5"
+        android:hint="radius (km)"
+        android:inputType="numberDecimal"
+        app:layout_constraintBottom_toBottomOf="@+id/radioGroup"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/radioGroup"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

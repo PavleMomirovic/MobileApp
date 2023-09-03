@@ -9,6 +9,7 @@ data class User(val username:String,
                 val addCount:Double,
                 val startCount:Double,
                 val commentsCount:Double,
+                val overallScore:Double,
                 @Transient val id:String
 ):java.io.Serializable {
 

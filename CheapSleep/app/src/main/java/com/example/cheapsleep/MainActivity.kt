@@ -1,6 +1,7 @@
 package com.example.cheapsleep
 
 import android.content.Intent
+import android.location.Location
 import android.os.Bundle
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
@@ -12,16 +13,32 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.navigation.NavController
+import com.example.cheapsleep.data.ILocationClient
+import com.example.cheapsleep.data.LocationClient
 import com.example.cheapsleep.databinding.ActivityMainBinding
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ILocationClient {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
 
+    companion object {
+        var curLocation: Location = Location("default").apply {
+            latitude=45.213
+            longitude=21.343
+        }
+        var iLocationClient: ILocationClient? = null
+        var locationClient: LocationClient? = null
+
+    }
+    override fun onNewLocation(location: Location) {
+        curLocation = location
+        iLocationClient?.onNewLocation(location)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        locationClient = LocationClient(applicationContext, this)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -67,7 +84,10 @@ class MainActivity : AppCompatActivity() {
                 if(navController.currentDestination?.id==R.id.ListFragment)
                     navController.navigate(R.id.action_ListFragment_to_MapFragment)
             }
-            R.id.action_about -> Toast.makeText(this, "About the app!", Toast.LENGTH_SHORT).show()
+            R.id.action_leaderboard -> {
+                if(navController.currentDestination?.id==R.id.ListFragment)
+                    navController.navigate(R.id.action_ListFragment_to_LeaderboardFragment)
+            }
         }
         return super.onOptionsItemSelected(item)
     }

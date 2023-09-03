@@ -2,8 +2,8 @@
     <string name="app_name">CheapSleep</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="list_fragment_label">List of places</string>
-    <string name="create_fragment_label">Create new place</string>
+    <string name="list_fragment_label">My places</string>
+    <string name="create_fragment_label">Edit</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
 
@@ -12,7 +12,7 @@
 
     <string name="show_map">Show Map</string>
     <string name="new_place">New Place</string>
-    <string name="my_places_list">My Places List</string>
+    <string name="my_places_list">My Places</string>
     <string name="about">About</string>
     <string name="name">name</string>
     <string name="description">description</string>
@@ -54,6 +54,9 @@
     <string name="popup_menu_edit">Edit</string>
     <string name="popup_menu_show">Show on map</string>
     <string name="edit_save_btn">Save</string>
+    <string name="leaderboard_fragment_label">Leaderboard</string>
+    <string name="leaderboard">Leaderboard</string>
+    <string name="search_places">Search places</string>
 
     <string-array name="TypesOfPlaces">
         <item>Choose accomodation type</item>

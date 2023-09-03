@@ -4,19 +4,27 @@ package com.example.cheapsleep
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.*
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
+import android.widget.TextView
+import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.example.cheapsleep.data.Place
+import com.example.cheapsleep.data.User
 import com.example.cheapsleep.data.UserObject
 import com.example.cheapsleep.databinding.FragmentCreateBinding
 import com.example.cheapsleep.model.LocationViewModel
 import com.example.cheapsleep.model.PlacesListView
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import java.util.*
 
 /**
@@ -27,6 +35,10 @@ class CreateFragment : Fragment() {
     private var _binding: FragmentCreateBinding? = null
     private val myPlacesViewModel: PlacesListView by activityViewModels()
     private val locationViewModel: LocationViewModel by activityViewModels()
+
+    private val db = Firebase.firestore
+    private var storage = Firebase.storage
+    var storageRef = storage.reference
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -43,6 +55,7 @@ class CreateFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
         super.onViewCreated(view, savedInstanceState)
         super.onViewCreated(view, savedInstanceState)
         val editName: EditText = requireView().findViewById(R.id.editText2)
@@ -53,12 +66,15 @@ class CreateFragment : Fragment() {
         var typeSelected:String = "No type selected"
         val editPrice:EditText=requireView().findViewById(R.id.edit_price)
 
+        val cancelButton: Button = requireView().findViewById(R.id.button)
+        val setButton:Button=requireView().findViewById<Button>(R.id.edit_location_btn)
+
         if(myPlacesViewModel.selected!=null){
             editName.setText(myPlacesViewModel.selected?.name)
             editDesc.setText(myPlacesViewModel.selected?.description)
             editPrice.setText(myPlacesViewModel.selected?.price)
-            editLongitude.setText(myPlacesViewModel.selected?.longitude)
-            editLatitude.setText(myPlacesViewModel.selected?.latitude)
+            editLongitude.setText(myPlacesViewModel.selected?.longitude.toString())
+            editLatitude.setText(myPlacesViewModel.selected?.latitude.toString())
             dropDown.setSelection(getIndex(dropDown, myPlacesViewModel.selected?.type)) //please work
         }
 
@@ -74,11 +90,14 @@ class CreateFragment : Fragment() {
         addButton.isEnabled=false
         if(myPlacesViewModel.selected!=null) {
             addButton.setText(R.string.edit_save_btn)
+            setButton.isVisible=false
+            editLongitude.isEnabled=false
+            editLatitude.isEnabled=false
+//            requireView().findViewById<TextView>(R.id.text_view_longitude).isVisible=false
+//            requireView().findViewById<TextView>(R.id.text_view_latitude).isVisible=false
+//          you cannot just change location of places
             addButton.isEnabled=true
         }
-
-        val cancelButton: Button = requireView().findViewById(R.id.button)
-        val setButton:Button=requireView().findViewById<Button>(R.id.edit_location_btn)
 
         setButton.setOnClickListener{
             locationViewModel.setLocation=true
@@ -114,9 +133,137 @@ class CreateFragment : Fragment() {
                 myPlacesViewModel.selected?.author= UserObject.username.toString()
                 myPlacesViewModel.selected?.date= Date()
 
+                val documentRef = db.collection("places").document(myPlacesViewModel.selected!!.id)
+
+                val place = hashMapOf(
+                    "name" to name,
+                    "type" to typeSelected,
+                    "date" to Date(),
+                    "description" to desc,
+                    "price" to price,
+                )
+
+                var fragmentContext = requireContext()
+                documentRef.update(place as Map<String, Any>)
+                    .addOnSuccessListener {
+                        Toast.makeText(
+                            fragmentContext,
+                            "Uspesno promenjene informacije o mestu",
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                    }
+                    .addOnFailureListener { exception ->
+
+                        Log.e("TAG", "Greška pri ažuriranju dokumenta", exception)
+                    }
+
             }
-            else
-                myPlacesViewModel.addPlace(Place(name, desc,longitude,latitude,price,typeSelected, UserObject.username.toString(),Date()))
+            else {
+                var myPlace: Place = Place(
+                    name,
+                    desc,
+                    longitude,
+                    latitude,
+                    price,
+                    typeSelected,
+                    author=UserObject.username.toString(),
+                    Date(),
+                    //desc,
+                    "",
+                    //grades,HashMap() , ""
+                )
+                myPlacesViewModel.addPlace(
+                    myPlace
+                )
+//                val hash = GeoFireUtils.getGeoHashForLocation(
+//                    GeoLocation(
+//                        Place.latitude.toDouble(),
+//                        Place.longitude.toDouble()
+//                    )
+//                )
+
+                val place = hashMapOf(
+                    "name" to name,
+                    "latitude" to latitude,
+                    "longitude" to longitude,
+                    "author" to UserObject.username.toString(),
+                    "type" to typeSelected,
+                    "date" to Date(),
+                    "price" to price,
+                    "description" to desc,
+                    "id" to ""
+//                    "grades" to grades,
+                )
+
+                db.collection("places")
+                    .add(place)
+                    .addOnSuccessListener { documentReference ->
+
+                        myPlace.id = documentReference.id.toString()
+//                        myPlace.url = "places/" + myPlace.id + ".jpg"
+//                        url = "places/" + myPlace.id + ".jpg"
+//                        var imageRef: StorageReference? =
+//                            storageRef.child("images/" + url)
+//                        var PlaceRef = storageRef.child(url)
+
+
+//                        imageView.isDrawingCacheEnabled = true
+//                        imageView.buildDrawingCache()
+
+//                        if (imageView.drawable is BitmapDrawable) {
+//                            val bitmap = (imageView.drawable as BitmapDrawable).bitmap
+//                            val baos = ByteArrayOutputStream()
+//                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+//                            val data = baos.toByteArray()
+//                            var uploadTask = PlaceRef.putBytes(data)
+//                            uploadTask.addOnFailureListener { e ->
+//                                Log.w("TAGA", "Greska", e)
+//                            }
+//                        }
+                        val documentRef = db.collection("places").document(myPlace.id)
+                        val placeUrl = hashMapOf(
+                            "id" to myPlace.id
+                        )
+
+                        documentRef.update(placeUrl as Map<String, Any>)
+                            .addOnSuccessListener {
+                            }
+                            .addOnFailureListener { exception ->
+
+                            }
+
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w("TAGA", "Error", e)
+                    }
+                //update user's add count:
+                db.collection("users")
+                    .whereEqualTo("username", UserObject.username)
+                    .get()
+                    .addOnSuccessListener { querySnapshot ->
+                        for (documentSnapshot in querySnapshot.documents) {
+                            val documentRef =
+                                db.collection("users").document(documentSnapshot.id)
+                            val addCount: Long = documentSnapshot.get("addCount") as Long
+                            val starCount: Long = documentSnapshot.get("starsCount") as Long
+                            val commCount: Long = documentSnapshot.get("commentsCount") as Long
+                            val tmpScore =addCount*10+commCount*3+starCount
+                            val noviPodaci = hashMapOf<String, Any>(
+                                "addCount" to (addCount + 1).toString().toLong(),
+                                "overallScore" to tmpScore
+                            )
+                            documentRef.update(noviPodaci)
+                                .addOnSuccessListener {
+
+                                }
+                                .addOnFailureListener { exception ->
+                                    Log.w("TAGA", "Error", exception)
+                                }
+                        }
+                    }
+
+            }
             myPlacesViewModel.selected=null
             locationViewModel.setLocation("","")
             findNavController().popBackStack()
@@ -130,24 +277,6 @@ class CreateFragment : Fragment() {
 
             //findNavController().navigate(R.id.action_EditFragment_to_ListFragment)
         }
-
-//        dropDown.onItemSelectedListener = object : AdapterView.OnItemSelectedListener,
-//            AdapterView.OnItemSelectedListener {
-//            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
-//                if(parent.getItemAtPosition(position).toString()=="Choose accomodation type"){
-//
-//                }else{
-//                    typeSelected = parent.getItemAtPosition(position).toString()
-//                }
-//            }
-////            override fun onNothingSelected(p0: AdapterView<*>?) {
-////                TODO("Not yet implemented")
-////            }
-////
-////            override fun onNavigationItemSelected(item: MenuItem): Boolean {
-////                TODO("Not yet implemented")
-////            }
-//        }
 
 
     }
@@ -164,7 +293,8 @@ class CreateFragment : Fragment() {
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
-        menu.findItem(R.id.action_new_place).isVisible = false
+//        menu.setGroupVisible(R.id.menu_group,false)
+
     }
 
     override fun onDestroyView() {

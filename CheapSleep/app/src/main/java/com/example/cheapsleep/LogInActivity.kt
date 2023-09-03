@@ -35,11 +35,11 @@ class LogInActivity : AppCompatActivity() {
             if (userName.equals(""))
                 Toast.makeText(
                     this@LogInActivity,
-                    "Morate uneti korisnicko ime",
+                    "Username missing",
                     Toast.LENGTH_SHORT
                 ).show()
             else if (password.equals(""))
-                Toast.makeText(this@LogInActivity, "Morate uneti lozinku", Toast.LENGTH_SHORT)
+                Toast.makeText(this@LogInActivity, "Password incorrect", Toast.LENGTH_SHORT)
                     .show()
             else {
 
@@ -75,6 +75,8 @@ class LogInActivity : AppCompatActivity() {
                                                 ?: 0.0,
                                             (document.data?.get("commentsCount") as? Number)?.toDouble()
                                                 ?: 0.0,
+                                            (document.data?.get("overallScore") as? Number)?.toDouble()
+                                                ?:0.0,
                                             document.reference.id.toString()
                                         )
 
@@ -95,7 +97,7 @@ class LogInActivity : AppCompatActivity() {
                                     } else
                                         Toast.makeText(
                                             this@LogInActivity,
-                                            "Pogresna lozinka",
+                                            "Password incorrect",
                                             Toast.LENGTH_SHORT
                                         ).show()
                             }
@@ -103,12 +105,12 @@ class LogInActivity : AppCompatActivity() {
                         } else
                             Toast.makeText(
                                 this@LogInActivity,
-                                "Ne postoji osoba sa tim korisnickim imenom",
+                                "There is no user named: "+userName.toString(),
                                 Toast.LENGTH_SHORT
                             ).show()
 
                     } catch (e: java.lang.Exception) {
-                        Log.w("TAGA", "Greska", e)
+                        Log.w("TAGA", "Error", e)
                     }
                 }
             }

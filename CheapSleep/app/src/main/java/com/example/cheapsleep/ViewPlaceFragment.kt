@@ -41,7 +41,7 @@ class ViewPlaceFragment : Fragment() {
 
 
         binding.ViewFragmentName.text = myPlacesViewModel.selected?.name
-        //binding.ViewFragmentDesc.text = myPlacesViewModel.selected?.description
+        binding.ViewFragmentCena.text = myPlacesViewModel.selected?.price
         binding.ViewFragmentAutor.text = myPlacesViewModel.selected?.author
         binding.ViewFragmentDescription.text = myPlacesViewModel.selected?.description
 
@@ -67,8 +67,9 @@ class ViewPlaceFragment : Fragment() {
 
 
         binding.ViewFragmentClose.setOnClickListener {
-            myPlacesViewModel.selected=null
-            findNavController().navigate(R.id.action_ViewPlaceFragment_to_ListFragment)
+//            myPlacesViewModel.selected=null
+              findNavController().popBackStack()
+
         }
     }
 

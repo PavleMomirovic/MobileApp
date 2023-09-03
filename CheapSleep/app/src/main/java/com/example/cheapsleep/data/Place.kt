@@ -10,11 +10,11 @@ class Place(
     var price:String,
     var type:String,
     var author:String,
-    var date: Date?
+    var date: Date?,
 //    var imageUrl:String,
-//    var grades:HashMap<String,Double>
+//    var grades:HashMap<String,Double>,
 //    var comments:HashMap<String,String>,
-//    @Transient var id:String
+    @Transient var id:String
     ) {
     override fun toString(): String = name
 }

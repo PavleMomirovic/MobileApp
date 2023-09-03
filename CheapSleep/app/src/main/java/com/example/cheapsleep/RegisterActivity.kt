@@ -152,7 +152,7 @@ class RegisterActivity : AppCompatActivity() {
 
                             Toast.makeText(
                                 this@RegisterActivity,
-                                "Postoji osoba sa tim korisnickim imenom",
+                                "Username taken",
                                 Toast.LENGTH_SHORT
                             ).show()
 
@@ -183,6 +183,7 @@ class RegisterActivity : AppCompatActivity() {
                                         0.0,
                                         0.0,
                                         0.0,
+                                        0.0,
                                         id
                                     )
                                     var intent: Intent =
@@ -196,6 +197,7 @@ class RegisterActivity : AppCompatActivity() {
                                         this.addCount = user.addCount
                                         this.commentsCount = user.commentsCount
                                         this.startCount = user.startCount
+                                        this.overallScore=user.overallScore
 
 
                                     }

@@ -20,6 +20,10 @@
         <action
             android:id="@+id/action_ListFragment_to_MapFragment"
             app:destination="@+id/MapFragment" />
+        <action
+            android:id="@+id/action_ListFragment_to_LeaderboardFragment"
+            app:destination="@+id/LeaderboardFragment" />
+
     </fragment>
     <fragment
         android:id="@+id/CreateFragment"
@@ -27,13 +31,24 @@
         android:label="@string/create_fragment_label"
         tools:layout="@layout/fragment_create">
 
-        <action
-            android:id="@+id/actionCreateFragment_to_ListFragment"
-            app:destination="@id/ListFragment" />
+        <!--        <action-->
+        <!--            android:id="@+id/actionCreateFragment_to_ListFragment"-->
+        <!--            app:destination="@id/ListFragment" />-->
         <action
             android:id="@+id/actionCreateFragment_to_MapFragment"
             app:destination="@id/MapFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/LeaderboardFragment"
+        android:name="com.example.cheapsleep.LeaderboardFragment"
+        android:label="@string/leaderboard_fragment_label"
+        tools:layout="@layout/fragment_leaderboard">
+<!--        -->
+<!--        <action-->
+<!--            android:id="@+id/actionCreateFragment_to_MapFragment"-->
+<!--            app:destination="@id/MapFragment" />-->
+    </fragment>
+
     <fragment
         android:id="@+id/MapFragment"
         android:name="com.example.cheapsleep.MapFragment"
@@ -50,8 +65,8 @@
         android:label="@string/view_fragment_label"
         tools:layout="@layout/fragment_map">
 
-        <action
-            android:id="@+id/action_ViewPlaceFragment_to_ListFragment"
-            app:destination="@+id/ListFragment"/>
+<!--        <action-->
+<!--            android:id="@+id/action_ViewPlaceFragment_to_ListFragment"-->
+<!--            app:destination="@+id/ListFragment"/>-->
     </fragment>
 </navigation>

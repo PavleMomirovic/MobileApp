@@ -1,6 +1,7 @@
 package com.example.cheapsleep
 
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -9,11 +10,20 @@ import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.cheapsleep.data.Place
 import com.example.cheapsleep.data.UserObject
 import com.example.cheapsleep.databinding.FragmentListBinding
 import com.example.cheapsleep.model.PlacesListView
+import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import java.util.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -21,6 +31,7 @@ import com.example.cheapsleep.model.PlacesListView
 class ListFragment : Fragment() {
 
     private var _binding: FragmentListBinding? = null
+    private val db = Firebase.firestore
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -44,11 +55,22 @@ class ListFragment : Fragment() {
 
         val listView: ListView = requireView().findViewById(R.id.my_places_list)
 
-        /*  PlacesListView.PlacesList.addAll(
-              arrayOf(
-                  "Tvrdjava", "Car", "Park Svetog Save", "Trg Kralja Milana"
-              )
-          )*/
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+
+                val result = withContext(Dispatchers.IO) {
+                    db.collection("places") //add condition author==UserObject.username
+                        .get()
+                        .await()
+                }
+                placesListView.myPlacesList.clear()
+                placesListView.myPlacesList.addAll(createList(result))
+                Log.d("TAGA","s"+placesListView.myPlacesList.size.toString())
+//                showList(requireView(), placesListView.myPlacesList)
+            } catch (e: Exception) {
+                Log.w("TAGA", "Greska", e)
+            }
+        }
 
         val arrayAdapter = ArrayAdapter(
             view.context,
@@ -70,6 +92,52 @@ class ListFragment : Fragment() {
             showPopupMenu(view, position)
             true
         }
+    }
+    private fun createList(result: QuerySnapshot): kotlin.collections.ArrayList<Place> {
+
+        var list: kotlin.collections.ArrayList<Place> = ArrayList()
+        for (document in result) {
+            var data = document.data
+//            var grades = HashMap<String, Double>()
+//            if (data["grades"] != null) {
+//                for (g in data["grades"] as HashMap<String, Double>)
+//                    grades[g.key] = g.value
+//            }
+//            var comments = HashMap<String, String>()
+//            if (data["comments"] != null) {
+//                for (c in data["comments"] as HashMap<String, String>)
+//                    comments[c.key] = c.value
+//            }
+            var date: Date? = null
+            if (data["date"] != null) {
+
+                val timestamp: com.google.firebase.Timestamp? =
+                    document.getTimestamp("date")
+                date = timestamp?.toDate()
+//
+//            }
+
+                list.add(
+                    Place(
+                        data["name"].toString(),
+                        data["description"].toString(),
+                        data["longitude"].toString(),
+                        data["latitude"].toString(),
+                        data["price"].toString(),
+                        data["type"].toString(),
+                        data["author"].toString(),
+                        date,
+//                    data["url"].toString(),
+                        data["id"].toString()
+//                    grades,
+//                    comments,
+//                    document.id
+                    )
+                )
+
+            }
+        }
+        return list
     }
 
     private fun showPopupMenu(view: View, position: Int) {
