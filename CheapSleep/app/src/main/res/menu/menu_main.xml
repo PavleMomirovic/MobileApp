@@ -15,12 +15,12 @@
             android:orderInCategory="100"
             android:title="@string/new_place"
             app:showAsAction="always" />
-        <item
-            android:id="@+id/action_places_list"
-            android:icon="@drawable/outline_list_white_24"
-            android:orderInCategory="100"
-            android:title="@string/my_places_list"
-            app:showAsAction="ifRoom" />
+<!--        <item-->
+<!--            android:id="@+id/action_places_list"-->
+<!--            android:icon="@drawable/outline_list_white_24"-->
+<!--            android:orderInCategory="100"-->
+<!--            android:title="@string/my_places_list"-->
+<!--            app:showAsAction="ifRoom" />-->
         <!--    <item-->
         <!--        android:id="@+id/action_search_places"-->
         <!--        android:icon="@drawable/outline_manage_search_white_24"-->

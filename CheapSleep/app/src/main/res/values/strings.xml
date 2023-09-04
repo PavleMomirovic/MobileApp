@@ -37,12 +37,12 @@
     <string name="register_camera_btn">Camera</string>
     <string name="register_gallery_btn">Gallery</string>
     <string name="register_ok_btn">Register</string>
-    <string name="registe_close_btn">Already have an account?</string>
+    <string name="registe_close_btn">Close</string>
 
-    <string name="list_fragment_autor_rb">Autor</string>
-    <string name="list_fragment_tip_rb">Tip</string>
-    <string name="list_fragment_ocena_rb">Ocena</string>
-    <string name="list_fragment_datum_rb">Datum</string>
+    <string name="list_fragment_autor_rb">Author</string>
+    <string name="list_fragment_tip_rb">Type</string>
+    <string name="list_fragment_ocena_rb">Price</string>
+    <string name="list_fragment_datum_rb">Date</string>
     <string name="list_fragment_format_label">Format datuma je: ddMMyyyy</string>
     <string name="list_fragment_datumod_label">Datum od:</string>
     <string name="list_fragment_datumdo_label">Datum do:</string>
@@ -57,6 +57,10 @@
     <string name="leaderboard_fragment_label">Leaderboard</string>
     <string name="leaderboard">Leaderboard</string>
     <string name="search_places">Search places</string>
+    <string name="RatingButton">Make a review</string>
+    <string name="review_fragment_label">Write a review</string>
+    <string name="cameraPlace">Camera</string>
+    <string name="galleryPlace">Gallery</string>
 
     <string-array name="TypesOfPlaces">
         <item>Choose accomodation type</item>

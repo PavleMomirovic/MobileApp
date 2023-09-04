@@ -54,11 +54,7 @@ class MapFragment : Fragment(), ILocationClient {
     private var objectsOnMapMarkers = mutableListOf<Overlay>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_main,menu)
+//        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -243,9 +239,6 @@ class MapFragment : Fragment(), ILocationClient {
 
     }
 
-
-
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when(item.itemId){
             R.id.action_new_place->{
@@ -259,14 +252,6 @@ class MapFragment : Fragment(), ILocationClient {
     override fun onDestroyView() {
         MainActivity.iLocationClient=null
         super.onDestroyView()
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        var item=menu.findItem(R.id.action_places_list)
-        item.isVisible=false
-        item=menu.findItem(R.id.action_show_map)
-        item.isVisible=false
     }
 
 

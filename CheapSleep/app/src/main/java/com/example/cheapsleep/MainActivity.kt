@@ -13,6 +13,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import com.example.cheapsleep.data.ILocationClient
 import com.example.cheapsleep.data.LocationClient
 import com.example.cheapsleep.databinding.ActivityMainBinding
@@ -56,6 +57,20 @@ class MainActivity : AppCompatActivity(), ILocationClient {
                 binding.fab.show()
 
         }
+        navController.addOnDestinationChangedListener(object :NavController.OnDestinationChangedListener{
+            override fun onDestinationChanged(
+                controller: NavController,
+                destination: NavDestination,
+                arguments: Bundle?
+            ) {
+//                binding.toolbar.menu.setGroupVisible(R.id.menuGroup,destination.id==R.id.ListFragment)
+                binding.toolbar.menu.findItem(R.id.action_show_map)?.isVisible=destination.id==R.id.ListFragment
+                binding.toolbar.menu.findItem(R.id.action_leaderboard)?.isVisible=destination.id==R.id.ListFragment
+                binding.toolbar.menu.findItem(R.id.action_new_place)?.isVisible=destination.id==R.id.ListFragment
+
+            }
+
+        } )
 
         binding.fab.setOnClickListener { view ->
             if(navController.currentDestination?.id==R.id.ListFragment)

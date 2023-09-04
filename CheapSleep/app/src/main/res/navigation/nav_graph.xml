@@ -63,10 +63,17 @@
         android:id="@+id/ViewPlaceFragment"
         android:name="com.example.cheapsleep.ViewPlaceFragment"
         android:label="@string/view_fragment_label"
-        tools:layout="@layout/fragment_map">
+        tools:layout="@layout/fragment_view_place">
 
-<!--        <action-->
-<!--            android:id="@+id/action_ViewPlaceFragment_to_ListFragment"-->
-<!--            app:destination="@+id/ListFragment"/>-->
+            <action
+                android:id="@+id/action_ViewPlaceFragment_to_ReviewFragment"
+                app:destination="@+id/ReviewFragment"/>
+    </fragment>
+    <fragment
+        android:id="@+id/ReviewFragment"
+        android:name="com.example.cheapsleep.ReviewFragment"
+        android:label="@string/review_fragment_label"
+        tools:layout="@layout/fragment_review">
+
     </fragment>
 </navigation>
