@@ -33,7 +33,7 @@ import java.util.*
 class ViewPlaceFragment : Fragment() {
 
     private val myPlacesViewModel: PlacesListView by activityViewModels()
-    private var _binding : FragmentViewPlaceBinding? = null
+    private var _binding: FragmentViewPlaceBinding? = null
     private val binding get() = _binding!!
     private var db = Firebase.firestore
     private var storage = Firebase.storage
@@ -41,12 +41,11 @@ class ViewPlaceFragment : Fragment() {
     var storageRef = storage.reference
 
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding=FragmentViewPlaceBinding.inflate(inflater,container,false)
+        _binding = FragmentViewPlaceBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -59,16 +58,19 @@ class ViewPlaceFragment : Fragment() {
             SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH)
         var imageView = binding.imgPlaceView
         viewLifecycleOwner.lifecycleScope.launch() {
-            val path = myPlacesViewModel.selected?.imageUrl.toString()
-            val imageRef = storageRef.child(path).downloadUrl.await()
+            try {
+                val path = myPlacesViewModel.selected?.imageUrl.toString()
+                val imageRef = storageRef.child(path).downloadUrl.await()
 
-            Log.d("TAGA", myPlacesViewModel.selected?.imageUrl.toString())
-            Glide.with(this@ViewPlaceFragment).clear(imageView)
-            Glide.with(this@ViewPlaceFragment)
-                .load(imageRef)
-                .transition(DrawableTransitionOptions.withCrossFade())
-                .into(imageView)
-
+                Log.d("TAGA", myPlacesViewModel.selected?.imageUrl.toString())
+                Glide.with(this@ViewPlaceFragment).clear(imageView)
+                Glide.with(this@ViewPlaceFragment)
+                    .load(imageRef)
+                    .transition(DrawableTransitionOptions.withCrossFade())
+                    .into(imageView)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
 
 
@@ -84,34 +86,39 @@ class ViewPlaceFragment : Fragment() {
 
         binding.ViewFragmentTip.text = myPlacesViewModel.selected?.type
 
-        var sum:Double = 0.0
+        var sum: Double = 0.0
         for (el in myPlacesViewModel.selected?.grades!!)
             sum += el.value
-        if (myPlacesViewModel.selected?.grades!!.size!= 0)
+        if (myPlacesViewModel.selected?.grades!!.size != 0)
             sum /= myPlacesViewModel.selected?.grades!!.size
         binding.ratingBar2.rating = sum.toFloat()
 
-        var s:ArrayList<String> = ArrayList()
+        var s: ArrayList<String> = ArrayList()
         for (el in myPlacesViewModel.selected?.comments!!)
             s.add(el.value)
 
-        binding.viewFragmentListView.adapter=ArrayAdapter<String>(requireContext(),android.R.layout.simple_list_item_1,s)
+        binding.viewFragmentListView.adapter =
+            ArrayAdapter<String>(requireContext(), android.R.layout.simple_list_item_1, s)
 
 
         binding.ViewFragmentClose.setOnClickListener {
 //            myPlacesViewModel.selected=null
-              findNavController().popBackStack()
+            findNavController().popBackStack()
 
         }
 
-        binding.RatingButton.setOnClickListener{
-            val placeLocation=Location("x").apply{
-                latitude=myPlacesViewModel.selected?.latitude?.toDouble()?:0.0
-                longitude=myPlacesViewModel.selected?.longitude?.toDouble()?:0.0
+        binding.RatingButton.setOnClickListener {
+            val placeLocation = Location("x").apply {
+                latitude = myPlacesViewModel.selected?.latitude?.toDouble() ?: 0.0
+                longitude = myPlacesViewModel.selected?.longitude?.toDouble() ?: 0.0
             }
-            if(MainActivity.curLocation.distanceTo(placeLocation)>50){
-                Toast.makeText(context,"You can make a review only when you are on place",Toast.LENGTH_SHORT).show()
-            }else{
+            if (MainActivity.curLocation.distanceTo(placeLocation) > 50) {
+                Toast.makeText(
+                    context,
+                    "You can make a review only when you are on place",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
                 findNavController().navigate(R.id.action_ViewPlaceFragment_to_ReviewFragment)
             }
         }
@@ -119,7 +126,7 @@ class ViewPlaceFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding=null
+        _binding = null
 //        myPlacesViewModel.selected=null
     }
 }

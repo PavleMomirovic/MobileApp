@@ -127,8 +127,7 @@ class MapFragment : Fragment(), ILocationClient {
             setOnMapClickOverlay()
         }
         else{
-//            ovde da se doda za selected u PlacesListView
-//            myPlacesListView.selected=true
+
             setMyLocationOverlay()
         }
         map.controller.animateTo(startPoint)
@@ -170,8 +169,7 @@ class MapFragment : Fragment(), ILocationClient {
         return suspendCoroutine { continuation ->
 
         db.collection("places").get()
-//            .whereGreaterThanOrEqualTo("koord", GeoPoint(minLat, minLon))
-//            .whereLessThanOrEqualTo("koord", GeoPoint(maxLat, maxLon)).get(Source.SERVER)
+
             .addOnSuccessListener { snapshot ->
                 snapshot?.let {
                     val objects = it.documents.mapNotNull { documentSnapshot ->
@@ -215,11 +213,6 @@ class MapFragment : Fragment(), ILocationClient {
         val minLon = myLocation.longitude - lonDelta * (180 / PI)
         val maxLon = myLocation.longitude + lonDelta * (180 / PI)
 
-//        for (obj in listOfObjects) {
-//            if (obj.longitude.toDouble() < minLon || obj.longitude.toDouble() > maxLon || obj.latitude.toDouble() < minLat || obj.latitude.toDouble() > maxLat) {
-//                listOfObjects.remove(obj)
-//            }
-//        }
         Log.d("TAGA", "$listOfObjects")
         for (obj in listOfObjects) {
 

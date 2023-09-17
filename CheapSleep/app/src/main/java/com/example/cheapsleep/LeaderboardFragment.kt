@@ -100,12 +100,6 @@ class LeaderboardFragment : Fragment() {
         )
         listView.adapter = arrayAdapter
 
-//        val arrayAdapter = ArrayAdapter(
-//            view.context,
-//            android.R.layout.simple_list_item_1, arrayList
-//        )
-//
-//        listView.adapter = arrayAdapter
 
     }
 
@@ -126,10 +120,6 @@ class LeaderboardFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
 
-//            R.id.action_new_place -> {
-//                this.findNavController().navigate(R.id.action_ListFragment_to_EditFragment)
-//                true
-//            }
             else -> super.onOptionsItemSelected(item)
         }
     }

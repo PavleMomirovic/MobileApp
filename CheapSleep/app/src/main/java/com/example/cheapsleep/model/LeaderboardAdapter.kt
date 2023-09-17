@@ -31,8 +31,8 @@ class LeaderboardAdapter(context: Context, private val itemList: ArrayList<User>
         holder.itemFullName.text = item.name
         holder.itemSurName.text = item.surname
         holder.itemaddCount.text = item.addCount.toString()
-//        holder.itemstarsCount.text = item.startCount.toString()
-//        holder.itemcommentsCount.text = item.commentsCount.toString()
+        holder.itemstarsCount.text = item.startCount.toString()
+        holder.itemcommentsCount.text = item.commentsCount.toString()
 
 
 
@@ -44,8 +44,8 @@ class LeaderboardAdapter(context: Context, private val itemList: ArrayList<User>
         val itemFullName : TextView = view.findViewById(R.id.tvUserName)
         val itemSurName : TextView = view.findViewById(R.id.tvUserSurname)
         val itemaddCount : TextView = view.findViewById(R.id.tvAddCount)
-//        val itemstarsCount : TextView = view.findViewById(R.id.tvStarsCount)
-//        val itemcommentsCount : TextView = view.findViewById(R.id.tvCommentsCountr)
+        val itemstarsCount : TextView = view.findViewById(R.id.tvStarsCount)
+        val itemcommentsCount : TextView = view.findViewById(R.id.tvCommentsCountr)
 
 
     }

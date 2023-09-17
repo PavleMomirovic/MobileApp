@@ -15,9 +15,14 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.example.cheapsleep.data.User
 import com.example.cheapsleep.data.UserObject
 import com.example.cheapsleep.databinding.ActivityRegisterBinding
+import com.example.cheapsleep.model.PlacesListView
+import com.example.cheapsleep.model.UserDbModel
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageReference
@@ -29,6 +34,7 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 
+
 class RegisterActivity : AppCompatActivity() {
 
 
@@ -38,9 +44,11 @@ class RegisterActivity : AppCompatActivity() {
     private var db = Firebase.firestore
     private var storage = Firebase.storage
 
+    //    private var userDbModel: UserDbModel by activityViewModel()
+    private lateinit var userDbModel: UserDbModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        userDbModel = ViewModelProvider(this)[UserDbModel::class.java]
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -106,118 +114,157 @@ class RegisterActivity : AppCompatActivity() {
             var surname: String = editSurname.text.toString()
             var phone: String = editPhone.text.toString()
             if (userName.equals(""))
-                Toast.makeText(this, "Morate uneti korisnicko ime", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Username missing", Toast.LENGTH_SHORT).show()
             else if (password.equals(""))
-                Toast.makeText(this, "Morate uneti sifru", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Password missing", Toast.LENGTH_SHORT).show()
             else if (name.equals(""))
-                Toast.makeText(this, "Morate uneti ime", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Name missing", Toast.LENGTH_SHORT).show()
             else if (surname.equals(""))
-                Toast.makeText(this, "Morate uneti prezime", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Surname missing", Toast.LENGTH_SHORT).show()
             else if (phone.equals(""))
-                Toast.makeText(this, "Morate uneti broj telefona", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Phone number missing", Toast.LENGTH_SHORT).show()
             else {
-
-
-                var user = hashMapOf(
-                    "username" to userName,
-                    "password" to password,
-                    "name" to name,
-                    "surname" to surname,
-                    "phone" to phone,
-                    "addCount" to 0,
-                    "starsCount" to 0,
-                    "commentsCount" to 0,
-                    "url" to "users/" + editUserName.text.toString() + ".jpg"
+                var user: User = User(
+                    editUserName.text.toString(),
+                    editPassword.text.toString(),
+                    editName.text.toString(),
+                    editSurname.text.toString(),
+                    editPhone.text.toString(),
+                    "users/" + editUserName.text.toString() + ".jpg",
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    ""
                 )
-
-                var url = "users/" + editUserName.text.toString() + ".jpg"
-                var imageRef: StorageReference? = storageRef.child("images/" + url)
-                var userRef = storageRef.child(url)
-
-
-
-                CoroutineScope(Dispatchers.Main).launch {
-                    try {
-
-
-                        val result = withContext(Dispatchers.IO) {
-                            db.collection("users")
-                                .whereEqualTo("username", editUserName.text.toString())
-                                .get()
-                                .await()
-                        }
-
-
-                        if (!result.isEmpty) {
-
-                            Toast.makeText(
-                                this@RegisterActivity,
-                                "Username taken",
-                                Toast.LENGTH_SHORT
-                            ).show()
-
-                        } else {
-                            var imageView: ImageView = binding.imgUser
-                            imageView.isDrawingCacheEnabled = true
-                            imageView.buildDrawingCache()
-                            if (imageView.drawable is BitmapDrawable) {
-                                val bitmap = (imageView.drawable as BitmapDrawable).bitmap
-                                val baos = ByteArrayOutputStream()
-                                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-                                val data = baos.toByteArray()
-                                userRef.putBytes(data).await()
+                try {
+                    lifecycleScope.launch{
+                        withContext(Dispatchers.IO){
+                            val exists=userDbModel.userExists(user.username)
+                            if (!exists) {
+                                Toast.makeText(this@RegisterActivity, "Username taken", Toast.LENGTH_SHORT).show()
+                            } else {
+                                userDbModel.registerUser(user,  binding.imgUser)
+                                Toast.makeText(
+                                    this@RegisterActivity,
+                                    "Successfull registration "+userDbModel.ErrorType.toString(),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                val intent = Intent(this@RegisterActivity, MainActivity::class.java)
+                                startActivity(intent)
                             }
-
-                            db.collection("users")
-                                .add(user)
-                                .addOnSuccessListener { documentReference ->
-
-                                    var id = documentReference.id.toString()
-                                    var user: User = User(
-                                        editUserName.text.toString(),
-                                        editPassword.text.toString(),
-                                        editName.text.toString(),
-                                        editSurname.text.toString(),
-                                        editPhone.text.toString(),
-                                        "users/" + editUserName.text.toString() + ".jpg",
-                                        0.0,
-                                        0.0,
-                                        0.0,
-                                        0.0,
-                                        id
-                                    )
-                                    var intent: Intent =
-                                        Intent(this@RegisterActivity, MainActivity::class.java)
-                                    // intent.putExtra("user", user)
-                                    UserObject.apply {
-                                        this.username = user.username
-                                        this.password = user.password
-                                        this.name = user.name
-                                        this.surname = user.surname
-                                        this.addCount = user.addCount
-                                        this.commentsCount = user.commentsCount
-                                        this.startCount = user.startCount
-                                        this.overallScore=user.overallScore
-
-
-                                    }
-                                    startActivity(intent)
-                                    finish()
-
-                                }
-                                .addOnFailureListener { e ->
-                                    Log.w("TAGA", "Error", e)
-                                }
-
                         }
-                    } catch (e: java.lang.Exception) {
-                        Log.w("TAGA", "Greska", e)
                     }
 
 
+                } catch (e: java.lang.Exception) {
+                    Toast.makeText(this@RegisterActivity, e.toString(), Toast.LENGTH_SHORT).show()
+                    Log.w("TAGA", "Greska", e)
                 }
-            }
 
+                finish()
+
+//                var user = hashMapOf(
+//                    "username" to userName,
+//                    "password" to password,
+//                    "name" to name,
+//                    "surname" to surname,
+//                    "phone" to phone,
+//                    "addCount" to 0,
+//                    "starsCount" to 0,
+//                    "commentsCount" to 0,
+//                    "url" to "users/" + editUserName.text.toString() + ".jpg"
+//                )
+//
+//
+//                var url = "users/" + editUserName.text.toString() + ".jpg"
+//                var imageRef: StorageReference? = storageRef.child("images/" + url)
+//                var userRef = storageRef.child(url)
+//
+//
+//
+//                CoroutineScope(Dispatchers.Main).launch {
+//                    try {
+//
+//
+//                        val result = withContext(Dispatchers.IO) {
+//                            db.collection("users")
+//                                .whereEqualTo("username", editUserName.text.toString())
+//                                .get()
+//                                .await()
+//                        }
+//
+//
+//                        if (!result.isEmpty) {
+//
+//                            Toast.makeText(
+//                                this@RegisterActivity,
+//                                "Username taken",
+//                                Toast.LENGTH_SHORT
+//                            ).show()
+//
+//                        } else {
+//                            var imageView: ImageView = binding.imgUser
+//                            imageView.isDrawingCacheEnabled = true
+//                            imageView.buildDrawingCache()
+//                            if (imageView.drawable is BitmapDrawable) {
+//                                val bitmap = (imageView.drawable as BitmapDrawable).bitmap
+//                                val baos = ByteArrayOutputStream()
+//                                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+//                                val data = baos.toByteArray()
+//                                userRef.putBytes(data).await()
+//                            }
+//
+//                            db.collection("users")
+//                                .add(user)
+//                                .addOnSuccessListener { documentReference ->
+//
+//                                    var id = documentReference.id.toString()
+//
+//                                    var user: User = User(
+//                                        editUserName.text.toString(),
+//                                        editPassword.text.toString(),
+//                                        editName.text.toString(),
+//                                        editSurname.text.toString(),
+//                                        editPhone.text.toString(),
+//                                        "users/" + editUserName.text.toString() + ".jpg",
+//                                        0.0,
+//                                        0.0,
+//                                        0.0,
+//                                        0.0,
+//                                        id
+//                                    )
+//                                    var intent: Intent =
+//                                        Intent(this@RegisterActivity, MainActivity::class.java)
+//                                    // intent.putExtra("user", user)
+//                                    UserObject.apply {
+//                                        this.username = user.username
+//                                        this.password = user.password
+//                                        this.name = user.name
+//                                        this.surname = user.surname
+//                                        this.addCount = user.addCount
+//                                        this.commentsCount = user.commentsCount
+//                                        this.startCount = user.startCount
+//                                        this.overallScore=user.overallScore
+//
+//
+//                                    }
+//                                    startActivity(intent)
+//                                    finish()
+//
+//                                }
+//                                .addOnFailureListener { e ->
+//                                    Log.w("TAGA", "Error", e)
+//                                }
+//
+//                        }
+//                    } catch (e: java.lang.Exception) {
+//                        Log.w("TAGA", "Greska", e)
+//                    }
+//
+//
+//                }
+            }
         }
     }
 

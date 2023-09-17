@@ -140,9 +140,6 @@ class CreateFragment : Fragment() {
             editLatitude.isVisible = false
             binding.textViewLatitude.isVisible=false
             binding.textViewLongitude.isVisible=false
-//            requireView().findViewById<TextView>(R.id.text_view_longitude).isVisible=false
-//            requireView().findViewById<TextView>(R.id.text_view_latitude).isVisible=false
-//          you cannot just change location of places
             addButton.isEnabled = true
         }
 
@@ -165,8 +162,13 @@ class CreateFragment : Fragment() {
 
             val name: String = editName.text.toString()
             val desc: String = editDesc.text.toString()
-            val longitude: String = editLongitude.text.toString()
-            val latitude: String = editLatitude.text.toString()
+            var longitude: String = editLongitude.text.toString()
+            if (longitude.isEmpty())
+                longitude="20"
+
+            var latitude: String = editLatitude.text.toString()
+            if (latitude.isEmpty())
+                latitude="40"
             val price: String = editPrice.text.toString()
             typeSelected = dropDown.selectedItem.toString()
 
@@ -209,14 +211,14 @@ class CreateFragment : Fragment() {
                     .addOnSuccessListener {
                         Toast.makeText(
                             fragmentContext,
-                            "Uspesno promenjene informacije o mestu",
+                            "Place information updated successfully",
                             Toast.LENGTH_SHORT
                         ).show()
 
                     }
                     .addOnFailureListener { exception ->
 
-                        Log.e("TAG", "Greška pri ažuriranju dokumenta", exception)
+                        Log.e("TAG", "Update error", exception)
                     }
 
             } else {
@@ -237,12 +239,6 @@ class CreateFragment : Fragment() {
                 myPlacesViewModel.addPlace(
                     myPlace
                 )
-//                val hash = GeoFireUtils.getGeoHashForLocation(
-//                    GeoLocation(
-//                        Place.latitude.toDouble(),
-//                        Place.longitude.toDouble()
-//                    )
-//                )
 
                 val place = hashMapOf(
                     "name" to name,

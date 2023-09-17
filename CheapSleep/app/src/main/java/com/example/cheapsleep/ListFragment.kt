@@ -39,7 +39,6 @@ class ListFragment : Fragment() {
     private var searchType: String = "name"
 
     private val binding get() = _binding!!
-    private var userName: String = UserObject.username!!
 
     private val placesListView: PlacesListView by activityViewModels()
     lateinit var arrayAdapter: ArrayAdapter<Place>
@@ -122,7 +121,7 @@ class ListFragment : Fragment() {
                 try {
 
                     val result = withContext(Dispatchers.IO) {
-                        db.collection("places") //add condition author==UserObject.username
+                        db.collection("places")
                             .get()
                             .await()
                     }
@@ -195,7 +194,7 @@ class ListFragment : Fragment() {
                 try {
 
                     val result = withContext(Dispatchers.IO) {
-                        db.collection("places") //add condition author==UserObject.username
+                        db.collection("places")
                             .get()
                             .await()
                     }
@@ -204,13 +203,13 @@ class ListFragment : Fragment() {
                     for (item in tmpList) {
                         when (selected) {
                             1 -> {
-                                if (item.author != textZaPretragu) newList.add(item)
+                                if (item.author == textZaPretragu) newList.add(item)
                             }
                             2 -> {
-                                if (item.type != textZaPretragu) newList.add(item)
+                                if (item.type == textZaPretragu) newList.add(item)
                             }
                             3 -> {
-                                if (item.price.toDouble() >= textZaPretragu.toDouble()) newList.add(
+                                if (item.price.toDouble() <= textZaPretragu.toDouble()) newList.add(
                                     item
                                 )
                             }
@@ -346,9 +345,9 @@ class ListFragment : Fragment() {
     private fun showPopupMenu(view: View, position: Int) {
         val popupMenu = PopupMenu(requireContext(), view)
         popupMenu.menuInflater.inflate(R.menu.popup_menu, popupMenu.menu)
-        if (!placesListView.selected!!.author.equals(userName)) {
-            val menu = popupMenu.menu.findItem(R.id.editPlace)
-            menu.isVisible = false
+        if (!placesListView.selected!!.author.equals(UserObject.username)) {
+            val myEditItem = popupMenu.menu.findItem(R.id.editPlace)
+            myEditItem.isVisible = false
         }
 
         popupMenu.setOnMenuItemClickListener { menuItem ->

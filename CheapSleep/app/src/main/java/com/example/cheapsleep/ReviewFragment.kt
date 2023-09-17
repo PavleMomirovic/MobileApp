@@ -49,29 +49,6 @@ class ReviewFragment : Fragment() {
         var confirmbtn: Button = view.findViewById(R.id.ReviewFragmentbtnConfirm)
         var cancelbtn: Button = view.findViewById(R.id.ReviewFragmentbtnCancel)
 
-//        val documentRef = db.collection("places").document(myPlacesViewModel.selected!!.id)
-//        val place = hashMapOf(
-//            "name" to name,
-//            "type" to typeSelected,
-//            "date" to Date(),
-//            "description" to desc,
-//            "price" to price,
-//        )
-//        var fragmentContext = requireContext()
-//        documentRef.update(place as Map<String, Any>)
-//            .addOnSuccessListener {
-//                Toast.makeText(
-//                    fragmentContext,
-//                    "Uspesno promenjene informacije o mestu",
-//                    Toast.LENGTH_SHORT
-//                ).show()
-//
-//            }
-//            .addOnFailureListener { exception ->
-//
-//                Log.e("TAG", "Greška pri ažuriranju dokumenta", exception)
-//            }
-
 
         CoroutineScope(Dispatchers.Main).launch {
             try {
@@ -113,13 +90,6 @@ class ReviewFragment : Fragment() {
 
                             result.reference.set(document)
                         }
-
-//                        var starsCount: Long = 0
-//                        if (rate.rating != 0f && oldRate == 0f)
-//                            starsCount = 2
-//                        var kommCount: Long = 0
-//                        if (kom.text.isNotEmpty() && oldKomm.isEmpty())
-//                            kommCount = 1
 
 
                         db.collection("users")
