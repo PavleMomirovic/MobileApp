@@ -20,6 +20,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
@@ -29,7 +30,9 @@ import com.example.cheapsleep.data.User
 import com.example.cheapsleep.data.UserObject
 import com.example.cheapsleep.databinding.FragmentCreateBinding
 import com.example.cheapsleep.model.LocationViewModel
+import com.example.cheapsleep.model.PlacesDbModel
 import com.example.cheapsleep.model.PlacesListView
+import com.example.cheapsleep.model.UserDbModel
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageReference
@@ -47,6 +50,9 @@ class CreateFragment : Fragment() {
     private var _binding: FragmentCreateBinding? = null
     private val myPlacesViewModel: PlacesListView by activityViewModels()
     private val locationViewModel: LocationViewModel by activityViewModels()
+    private lateinit var userDbModel: UserDbModel
+    private lateinit var placesDbModel: PlacesDbModel
+
 
     private var CAMERA_REQUEST_CODE = 0
     private var GALLERY_REQUEST_CODE = 0
@@ -65,6 +71,10 @@ class CreateFragment : Fragment() {
     ): View? {
 
         _binding = FragmentCreateBinding.inflate(inflater, container, false)
+
+        userDbModel = ViewModelProvider(this)[UserDbModel::class.java] //maybe this needs to be moved in onCreate
+        placesDbModel = ViewModelProvider(this)[PlacesDbModel::class.java]
+
         return binding.root
 
     }
@@ -173,55 +183,60 @@ class CreateFragment : Fragment() {
             typeSelected = dropDown.selectedItem.toString()
 
             if (myPlacesViewModel.selected != null) {
-                myPlacesViewModel.selected?.name = name
-                myPlacesViewModel.selected?.description = desc
-                myPlacesViewModel.selected?.longitude = longitude
-                myPlacesViewModel.selected?.latitude = latitude
-                myPlacesViewModel.selected?.price = price
-                myPlacesViewModel.selected?.type = typeSelected
-                myPlacesViewModel.selected?.author = UserObject.username.toString()
-                myPlacesViewModel.selected?.date = Date()
 
-                val documentRef = db.collection("places").document(myPlacesViewModel.selected!!.id)
-                if (myPlacesViewModel.selected?.imageUrl != null) {
-                    var PlaceRef = storageRef.child(myPlacesViewModel.selected?.imageUrl!!)
+                //EDIT MODE:
 
-                    if (imageView.drawable is BitmapDrawable) {
-                        val bitmap = (imageView.drawable as BitmapDrawable).bitmap
-                        val baos = ByteArrayOutputStream()
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-                        val data = baos.toByteArray()
-                        var uploadTask = PlaceRef.putBytes(data)
-                        uploadTask.addOnFailureListener { e ->
-                            Log.w("TAGA", "Greska", e)
-                        }
-                    }
+//                myPlacesViewModel.selected?.name = name
+//                myPlacesViewModel.selected?.description = desc
+//                myPlacesViewModel.selected?.longitude = longitude
+//                myPlacesViewModel.selected?.latitude = latitude
+//                myPlacesViewModel.selected?.price = price
+//                myPlacesViewModel.selected?.type = typeSelected
+//                myPlacesViewModel.selected?.author = UserObject.username.toString()
+//                myPlacesViewModel.selected?.date = Date()
+
+                val place = Place(
+                    name,
+                    desc,
+                    "",
+                    "",
+                    price,
+                    typeSelected,
+                    "",
+                    Date(),
+                    myPlacesViewModel.selected?.imageUrl!!,
+                    HashMap(),
+                    HashMap(),
+                    myPlacesViewModel.selected?.id!!
+                    )
+                try{
+
+                    placesDbModel.editPlace(place,imageView)
+
+                    Toast.makeText(requireContext(),
+                        "Place information updated successfully",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    myPlacesViewModel.selected?.name = name
+                    myPlacesViewModel.selected?.description = desc
+                    myPlacesViewModel.selected?.longitude = longitude
+                    myPlacesViewModel.selected?.latitude = latitude
+                    myPlacesViewModel.selected?.price = price
+                    myPlacesViewModel.selected?.type = typeSelected
+                    myPlacesViewModel.selected?.author = UserObject.username.toString()
+                    myPlacesViewModel.selected?.date = Date()
+
+                }catch (e: java.lang.Exception) {
+                    Toast.makeText(requireContext(),
+                        "An Error occurred while trying to edit this place",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    Log.w("TAGA", "Greska", e)
                 }
-
-                val place = hashMapOf(
-                    "name" to name,
-                    "type" to typeSelected,
-                    "date" to Date(),
-                    "description" to desc,
-                    "price" to price,
-                )
-
-                var fragmentContext = requireContext()
-                documentRef.update(place as Map<String, Any>)
-                    .addOnSuccessListener {
-                        Toast.makeText(
-                            fragmentContext,
-                            "Place information updated successfully",
-                            Toast.LENGTH_SHORT
-                        ).show()
-
-                    }
-                    .addOnFailureListener { exception ->
-
-                        Log.e("TAG", "Update error", exception)
-                    }
-
             } else {
+
+                //CREATE MODE:
+
                 var myPlace: Place = Place(
                     name,
                     desc,
@@ -240,85 +255,9 @@ class CreateFragment : Fragment() {
                     myPlace
                 )
 
-                val place = hashMapOf(
-                    "name" to name,
-                    "latitude" to latitude,
-                    "longitude" to longitude,
-                    "author" to UserObject.username.toString(),
-                    "type" to typeSelected,
-                    "date" to Date(),
-                    "price" to price,
-                    "description" to desc,
-                    "grades" to myPlace.grades,
-                    "comments" to myPlace.comments,
-                )
+                placesDbModel.createPlace(myPlace,imageView)
 
-                db.collection("places")
-                    .add(place)
-                    .addOnSuccessListener { documentReference ->
-//
-                        myPlace.id = documentReference.id.toString()
-                        myPlace.imageUrl = "places/" + myPlace.id + ".jpg"
-                        val url = "places/" + myPlace.id + ".jpg"
-                        var imageRef: StorageReference? =
-                            storageRef.child("images/" + url)
-                        var PlaceRef = storageRef.child(url)
-
-
-                        imageView.isDrawingCacheEnabled = true
-                        imageView.buildDrawingCache()
-
-                        if (imageView.drawable is BitmapDrawable) {
-                            val bitmap = (imageView.drawable as BitmapDrawable).bitmap
-                            val baos = ByteArrayOutputStream()
-                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-                            val data = baos.toByteArray()
-                            var uploadTask = PlaceRef.putBytes(data)
-                            uploadTask.addOnFailureListener { e ->
-                                Log.w("TAGA", "Greska", e)
-                            }
-                        }
-                        val documentRef = db.collection("places").document(myPlace.id)
-                        val placeUrl = hashMapOf(
-                            "imageUrl" to myPlace.imageUrl
-                        )
-
-                        documentRef.update(placeUrl as Map<String, Any>)
-                            .addOnSuccessListener {
-                            }
-                            .addOnFailureListener { exception ->
-
-                            }
-
-                    }
-                    .addOnFailureListener { e ->
-                        Log.w("TAGA", "Error", e)
-                    }
-                //update user's add count:
-                db.collection("users")
-                    .whereEqualTo("username", UserObject.username)
-                    .get()
-                    .addOnSuccessListener { querySnapshot ->
-                        for (documentSnapshot in querySnapshot.documents) {
-                            val documentRef =
-                                db.collection("users").document(documentSnapshot.id)
-                            val addCount: Long = documentSnapshot.get("addCount") as Long
-                            val starCount: Long = documentSnapshot.get("starsCount") as Long
-                            val commCount: Long = documentSnapshot.get("commentsCount") as Long
-                            val tmpScore = addCount * 10 + commCount * 3 + starCount
-                            val noviPodaci = hashMapOf<String, Any>(
-                                "addCount" to (addCount + 1).toString().toLong(),
-                                "overallScore" to tmpScore
-                            )
-                            documentRef.update(noviPodaci)
-                                .addOnSuccessListener {
-
-                                }
-                                .addOnFailureListener { exception ->
-                                    Log.w("TAGA", "Error", exception)
-                                }
-                        }
-                    }
+                userDbModel.updateUserScore(UserObject.username.toString(),true,false,false)
 
             }
             myPlacesViewModel.selected = null

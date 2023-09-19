@@ -112,7 +112,7 @@ class ViewPlaceFragment : Fragment() {
                 latitude = myPlacesViewModel.selected?.latitude?.toDouble() ?: 0.0
                 longitude = myPlacesViewModel.selected?.longitude?.toDouble() ?: 0.0
             }
-            if (MainActivity.curLocation.distanceTo(placeLocation) > 50) {
+            if (MainActivity.curLocation.distanceTo(placeLocation) > 100) {
                 Toast.makeText(
                     context,
                     "You can make a review only when you are on place",

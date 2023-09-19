@@ -28,9 +28,6 @@ class UserDbModel : ViewModel() {
     private var storage = Firebase.storage
     private var storageRef = storage.reference
 
-    //    private lateinit var bindingReg: ActivityRegisterBinding
-    var ErrorType: Int? = 0
-
     fun registerUser(user: User, imageView: ImageView) {
         var url = user.profilePhotoUrl
         var imageRef: StorageReference? = storageRef.child("images/" + url)
@@ -193,7 +190,7 @@ class UserDbModel : ViewModel() {
         return list
     }
 
-    fun updateUserScore(username:String,firstComment:Boolean,firstRate:Boolean,rated:Boolean,commented:Boolean) {
+    fun updateUserScore(username:String,increaseAdded: Boolean,increaseStars:Boolean,increaseComments:Boolean) {
         db.collection("users")
             .whereEqualTo("username", username)
             .get()
@@ -203,15 +200,17 @@ class UserDbModel : ViewModel() {
                         db.collection("users").document(documentSnapshot.id)
 
                     var starsCount = documentSnapshot.get("starsCount") as Long
-                    if (firstRate && rated) starsCount++
+                    if (increaseStars) starsCount++
                     var kommCount = documentSnapshot.get("commentsCount") as Long
-                    if (firstComment && commented) kommCount++
+                    if (increaseComments) kommCount++
                     var addCount = documentSnapshot.get("addCount") as Long
+                    if(increaseAdded) addCount++
                     var tmpOverall = addCount * 10 + kommCount * 3 + starsCount
 
                     val noviPodaci = hashMapOf<String, Any>(
                         "starsCount" to starsCount,
                         "commentsCount" to kommCount,
+                        "addCount" to addCount,
                         "overallScore" to tmpOverall
                     )
                     documentRef.update(noviPodaci)

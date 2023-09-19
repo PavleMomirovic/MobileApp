@@ -10,11 +10,13 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.cheapsleep.data.Place
 import com.example.cheapsleep.data.UserObject
 import com.example.cheapsleep.databinding.FragmentListBinding
+import com.example.cheapsleep.model.PlacesDbModel
 import com.example.cheapsleep.model.PlacesListView
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.firestore
@@ -42,6 +44,8 @@ class ListFragment : Fragment() {
 
     private val placesListView: PlacesListView by activityViewModels()
     lateinit var arrayAdapter: ArrayAdapter<Place>
+    private lateinit var placesDbModel: PlacesDbModel
+
 
     var datOdMillis: Long = -1
     var datDoMillis: Long = -1
@@ -52,6 +56,8 @@ class ListFragment : Fragment() {
     ): View? {
 
         _binding = FragmentListBinding.inflate(inflater, container, false)
+        placesDbModel = ViewModelProvider(this)[PlacesDbModel::class.java]
+
         return binding.root
 
     }
@@ -85,15 +91,14 @@ class ListFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             try {
+                arrayAdapter.clear()
 
-                val result = withContext(Dispatchers.IO) {
-                    db.collection("places") //add condition author==UserObject.username
-                        .get()
-                        .await()
+                withContext(Dispatchers.IO) {
+                    arrayAdapter.addAll(placesDbModel.getPlaces())
                 }
 //                placesListView.myPlacesList.addAll()
-                arrayAdapter.clear()
-                arrayAdapter.addAll(createList(result))
+//                arrayAdapter.addAll(createList(result))
+
                 showList(requireView())
                 Log.d("TAGA", "s" + placesListView.myPlacesList.size.toString())
             } catch (e: Exception) {
@@ -120,15 +125,12 @@ class ListFragment : Fragment() {
             viewLifecycleOwner.lifecycleScope.launch {
                 try {
 
-                    val result = withContext(Dispatchers.IO) {
-                        db.collection("places")
-                            .get()
-                            .await()
-                    }
-//                placesListView.myPlacesList.addAll()
                     arrayAdapter.clear()
-                    arrayAdapter.addAll(createList(result))
-                    showList(requireView())
+
+                    withContext(Dispatchers.IO) {
+                        arrayAdapter.addAll(placesDbModel.getPlaces())
+                        showList(requireView())
+                    }
                     datDoMillis = 0
                     datOdMillis = 0
                     binding.btnDatDo.text = ""
@@ -193,23 +195,23 @@ class ListFragment : Fragment() {
             viewLifecycleOwner.lifecycleScope.launch {
                 try {
 
-                    val result = withContext(Dispatchers.IO) {
-                        db.collection("places")
-                            .get()
-                            .await()
+                    arrayAdapter.clear()
+                    var tmpList:MutableList<Place>
+                    withContext(Dispatchers.IO) {
+                        tmpList=placesDbModel.getPlaces().toMutableList()
                     }
-                    val tmpList = createList((result)).toMutableList()
+//                    val tmpList = createList((result)).toMutableList()
                     val newList = mutableListOf<Place>()
                     for (item in tmpList) {
                         when (selected) {
                             1 -> {
-                                if (item.author == textZaPretragu) newList.add(item)
+                                if (item.author.isNotEmpty() && item.author == textZaPretragu) newList.add(item)
                             }
                             2 -> {
-                                if (item.type == textZaPretragu) newList.add(item)
+                                if (item.type.isNotEmpty() && item.type == textZaPretragu) newList.add(item)
                             }
                             3 -> {
-                                if (item.price.toDouble() <= textZaPretragu.toDouble()) newList.add(
+                                if (item.price.isNotEmpty() && item.price.toDouble() <= textZaPretragu.toDouble()) newList.add(
                                     item
                                 )
                             }
@@ -296,51 +298,51 @@ class ListFragment : Fragment() {
     }
 
 
-    private fun createList(result: QuerySnapshot): kotlin.collections.ArrayList<Place> {
-
-        var list: kotlin.collections.ArrayList<Place> = ArrayList()
-        for (document in result) {
-            var data = document.data
-            var grades = HashMap<String, Double>()
-            if (data["grades"] != null) {
-                for (g in data["grades"] as HashMap<String, Double>)
-                    grades[g.key] = g.value
-            }
-            var comments = HashMap<String, String>()
-            if (data["comments"] != null) {
-                for (c in data["comments"] as HashMap<String, String>)
-                    comments[c.key] = c.value
-            }
-            var date: Date? = null
-            if (data["date"] != null) {
-
-                val timestamp: com.google.firebase.Timestamp? =
-                    document.getTimestamp("date")
-                date = timestamp?.toDate()
+//    private fun createList(result: QuerySnapshot): kotlin.collections.ArrayList<Place> {
+//
+//        var list: kotlin.collections.ArrayList<Place> = ArrayList()
+//        for (document in result) {
+//            var data = document.data
+//            var grades = HashMap<String, Double>()
+//            if (data["grades"] != null) {
+//                for (g in data["grades"] as HashMap<String, Double>)
+//                    grades[g.key] = g.value
+//            }
+//            var comments = HashMap<String, String>()
+//            if (data["comments"] != null) {
+//                for (c in data["comments"] as HashMap<String, String>)
+//                    comments[c.key] = c.value
+//            }
+//            var date: Date? = null
+//            if (data["date"] != null) {
+//
+//                val timestamp: com.google.firebase.Timestamp? =
+//                    document.getTimestamp("date")
+//                date = timestamp?.toDate()
+////
+////            }
+//
+//                list.add(
+//                    Place(
+//                        data["name"].toString(),
+//                        data["description"].toString(),
+//                        data["longitude"].toString(),
+//                        data["latitude"].toString(),
+//                        data["price"].toString(),
+//                        data["type"].toString(),
+//                        data["author"].toString(),
+//                        date,
+//                        data["imageUrl"].toString(),
+//                        grades,
+//                        comments,
+//                        document.id
+//                    )
+//                )
 //
 //            }
-
-                list.add(
-                    Place(
-                        data["name"].toString(),
-                        data["description"].toString(),
-                        data["longitude"].toString(),
-                        data["latitude"].toString(),
-                        data["price"].toString(),
-                        data["type"].toString(),
-                        data["author"].toString(),
-                        date,
-                        data["imageUrl"].toString(),
-                        grades,
-                        comments,
-                        document.id
-                    )
-                )
-
-            }
-        }
-        return list
-    }
+//        }
+//        return list
+//    }
 
     private fun showPopupMenu(view: View, position: Int) {
         val popupMenu = PopupMenu(requireContext(), view)
