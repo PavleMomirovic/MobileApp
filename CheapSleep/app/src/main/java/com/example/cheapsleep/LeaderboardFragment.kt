@@ -1,16 +1,21 @@
 package com.example.cheapsleep
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Switch
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.cheapsleep.data.User
 import com.example.cheapsleep.databinding.FragmentLeaderboardBinding
 import com.example.cheapsleep.model.LeaderboardAdapter
+import com.example.cheapsleep.model.UserDbModel
 //import com.example.cheapsleep.model.UserListAdapter
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
@@ -26,6 +31,8 @@ import kotlinx.coroutines.withContext
 class LeaderboardFragment : Fragment() {
 
     private var _binding: FragmentLeaderboardBinding? = null
+    private lateinit var userDbModel: UserDbModel
+
 
 
     private val binding get() = _binding!!
@@ -49,43 +56,20 @@ class LeaderboardFragment : Fragment() {
     }
 
     fun createList() {
-        list.clear()
-        CoroutineScope(Dispatchers.Main).launch {
             try {
-                val result: QuerySnapshot
-
-                result = withContext(Dispatchers.IO) {
-                    db.collection("users")
-                        .orderBy("overallScore", Query.Direction.DESCENDING)
-                        .get()
-                        .await()
+            lifecycleScope.launch{
+                withContext(Dispatchers.IO){
+                    list=userDbModel.getUsers()
                 }
-
-
-                for (document in result) {
-                    var data = document.data
-
-                    list.add(
-                        User(
-                            data["username"].toString()!!,
-                            data.get("password").toString()!!,
-                            data["name"].toString()!!,
-                            data.get("surname").toString()!!,
-                            data.get("phone").toString()!!,
-                            data.get("url").toString()!!,
-                            data.get("addCount").toString().toDouble()!!,
-                            data.get("starsCount").toString().toDouble()!!,
-                            data.get("commentsCount").toString().toDouble()!!,
-                            data["overallScore"].toString().toDouble(),
-                            document.id
-                        )
-                    )
-
+                if (list.isNotEmpty()) {
+                   showList(requireView(),list)
                 }
-                showList(requireView(), list)
-            } catch (e: java.lang.Exception) {
-                Log.w("TAGA", "GReska", e)
             }
+
+
+        } catch (e: java.lang.Exception) {
+//            Toast.makeText(this@LeaderboardFragment, e.toString(), Toast.LENGTH_SHORT).show()
+            Log.w("TAGA", "Greska", e)
         }
     }
 
@@ -105,6 +89,8 @@ class LeaderboardFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        userDbModel = ViewModelProvider(this)[UserDbModel::class.java]
+
         setHasOptionsMenu(false)
     }
 

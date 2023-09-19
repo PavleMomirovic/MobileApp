@@ -7,8 +7,11 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.example.cheapsleep.data.User
 import com.example.cheapsleep.data.UserObject
+import com.example.cheapsleep.model.UserDbModel
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
@@ -19,9 +22,12 @@ import kotlinx.coroutines.withContext
 
 
 class LogInActivity : AppCompatActivity() {
+    private lateinit var userDbModel: UserDbModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        userDbModel = ViewModelProvider(this)[UserDbModel::class.java]
+
         setContentView(R.layout.activity_log_in)
 
         var editUserName: EditText = findViewById(R.id.loginUserNameET)
@@ -39,80 +45,105 @@ class LogInActivity : AppCompatActivity() {
                     Toast.LENGTH_SHORT
                 ).show()
             else if (password.equals(""))
-                Toast.makeText(this@LogInActivity, "Password incorrect", Toast.LENGTH_SHORT)
+                Toast.makeText(this@LogInActivity, "Password missing", Toast.LENGTH_SHORT)
                     .show()
             else {
-
-                CoroutineScope(Dispatchers.Main).launch {
-                    try {
-                        val result = withContext(Dispatchers.IO) {
-                            db.collection("users")
-                                .whereEqualTo("username", userName)
-                                .get()
-                                .await()
+                try {
+                    //create user
+                    lifecycleScope.launch{
+                        var exists = true
+                        withContext(Dispatchers.IO){
+                            exists=userDbModel.loginUser(userName,password)
                         }
-
-
-                        if (!result.isEmpty) {
-                            for (document in result.documents) {
-                                if (document != null)
-                                    if (document.data?.get("password").toString()
-                                            .equals(password)
-                                    ) {
-                                        val intent =
-                                            Intent(this@LogInActivity, MainActivity::class.java)
-
-                                        var user: User = User(
-                                            userName,
-                                            password,
-                                            document.data?.get("firstname").toString(),
-                                            document.data?.get("lastname").toString(),
-                                            document.data?.get("phoneNumber").toString(),
-                                            document.data?.get("url").toString(),
-                                            (document.data?.get("addCount") as? Number)?.toDouble()
-                                                ?: 0.0,
-                                            (document.data?.get("starsCount") as? Number)?.toDouble()
-                                                ?: 0.0,
-                                            (document.data?.get("commentsCount") as? Number)?.toDouble()
-                                                ?: 0.0,
-                                            (document.data?.get("overallScore") as? Number)?.toDouble()
-                                                ?:0.0,
-                                            document.reference.id.toString()
-                                        )
-
-                                        UserObject.apply {
-                                            this.username = user.username
-                                            this.password = user.password
-                                            this.name = user.name
-                                            this.surname = user.surname
-                                            this.addCount = user.addCount
-                                            this.commentsCount = user.commentsCount
-                                            this.startCount = user.startCount
-
-
-                                        }
-
-                                        startActivity(intent)
-                                        finish()
-                                    } else
-                                        Toast.makeText(
-                                            this@LogInActivity,
-                                            "Password incorrect",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                            }
-
-                        } else
+                        if (!exists) {
+                            Toast.makeText(this@LogInActivity, "Username or password are incorrect", Toast.LENGTH_SHORT).show()
+                        } else {
                             Toast.makeText(
                                 this@LogInActivity,
-                                "There is no user named: "+userName.toString(),
+                                "Log in successful ",
                                 Toast.LENGTH_SHORT
                             ).show()
-
-                    } catch (e: java.lang.Exception) {
-                        Log.w("TAGA", "Error", e)
+                            val intent = Intent(this@LogInActivity, MainActivity::class.java)
+                            startActivity(intent)
+                        }
                     }
+
+
+                } catch (e: java.lang.Exception) {
+                    Toast.makeText(this@LogInActivity, e.toString(), Toast.LENGTH_SHORT).show()
+                    Log.w("TAGA", "Greska", e)
                 }
+
+//                CoroutineScope(Dispatchers.Main).launch {
+//                    try {
+//                        val result = withContext(Dispatchers.IO) {
+//                            db.collection("users")
+//                                .whereEqualTo("username", userName)
+//                                .get()
+//                                .await()
+//                        }
+//
+//
+//                        if (!result.isEmpty) {
+//                            for (document in result.documents) {
+//                                if (document != null)
+//                                    if (document.data?.get("password").toString()
+//                                            .equals(password)
+//                                    ) {
+//                                        val intent =
+//                                            Intent(this@LogInActivity, MainActivity::class.java)
+//
+//                                        var user: User = User(
+//                                            userName,
+//                                            password,
+//                                            document.data?.get("firstname").toString(),
+//                                            document.data?.get("lastname").toString(),
+//                                            document.data?.get("phoneNumber").toString(),
+//                                            document.data?.get("url").toString(),
+//                                            (document.data?.get("addCount") as? Number)?.toDouble()
+//                                                ?: 0.0,
+//                                            (document.data?.get("starsCount") as? Number)?.toDouble()
+//                                                ?: 0.0,
+//                                            (document.data?.get("commentsCount") as? Number)?.toDouble()
+//                                                ?: 0.0,
+//                                            (document.data?.get("overallScore") as? Number)?.toDouble()
+//                                                ?:0.0,
+//                                            document.reference.id.toString()
+//                                        )
+//
+//                                        UserObject.apply {
+//                                            this.username = user.username
+//                                            this.password = user.password
+//                                            this.name = user.name
+//                                            this.surname = user.surname
+//                                            this.addCount = user.addCount
+//                                            this.commentsCount = user.commentsCount
+//                                            this.startCount = user.startCount
+//
+//
+//                                        }
+//
+//                                        startActivity(intent)
+//                                        finish()
+//                                    } else
+//                                        Toast.makeText(
+//                                            this@LogInActivity,
+//                                            "Password incorrect",
+//                                            Toast.LENGTH_SHORT
+//                                        ).show()
+//                            }
+//
+//                        } else
+//                            Toast.makeText(
+//                                this@LogInActivity,
+//                                "There is no user named: "+userName.toString(),
+//                                Toast.LENGTH_SHORT
+//                            ).show()
+//
+//                    } catch (e: java.lang.Exception) {
+//                        Log.w("TAGA", "Error", e)
+//                    }
+//                }
             }
         }
 

@@ -139,20 +139,21 @@ class RegisterActivity : AppCompatActivity() {
                 )
                 try {
                     lifecycleScope.launch{
+                        var exists = true
                         withContext(Dispatchers.IO){
-                            val exists=userDbModel.userExists(user.username)
-                            if (!exists) {
-                                Toast.makeText(this@RegisterActivity, "Username taken", Toast.LENGTH_SHORT).show()
-                            } else {
-                                userDbModel.registerUser(user,  binding.imgUser)
-                                Toast.makeText(
-                                    this@RegisterActivity,
-                                    "Successfull registration "+userDbModel.ErrorType.toString(),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                val intent = Intent(this@RegisterActivity, MainActivity::class.java)
-                                startActivity(intent)
-                            }
+                            exists=userDbModel.userExists(user.username)
+                        }
+                        if (!exists) {
+                            Toast.makeText(this@RegisterActivity, "Username taken", Toast.LENGTH_SHORT).show()
+                        } else {
+                            userDbModel.registerUser(user,  binding.imgUser)
+                            Toast.makeText(
+                                this@RegisterActivity,
+                                "Successfull registration ",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            val intent = Intent(this@RegisterActivity, MainActivity::class.java)
+                            startActivity(intent)
                         }
                     }
 
@@ -161,109 +162,6 @@ class RegisterActivity : AppCompatActivity() {
                     Toast.makeText(this@RegisterActivity, e.toString(), Toast.LENGTH_SHORT).show()
                     Log.w("TAGA", "Greska", e)
                 }
-
-                finish()
-
-//                var user = hashMapOf(
-//                    "username" to userName,
-//                    "password" to password,
-//                    "name" to name,
-//                    "surname" to surname,
-//                    "phone" to phone,
-//                    "addCount" to 0,
-//                    "starsCount" to 0,
-//                    "commentsCount" to 0,
-//                    "url" to "users/" + editUserName.text.toString() + ".jpg"
-//                )
-//
-//
-//                var url = "users/" + editUserName.text.toString() + ".jpg"
-//                var imageRef: StorageReference? = storageRef.child("images/" + url)
-//                var userRef = storageRef.child(url)
-//
-//
-//
-//                CoroutineScope(Dispatchers.Main).launch {
-//                    try {
-//
-//
-//                        val result = withContext(Dispatchers.IO) {
-//                            db.collection("users")
-//                                .whereEqualTo("username", editUserName.text.toString())
-//                                .get()
-//                                .await()
-//                        }
-//
-//
-//                        if (!result.isEmpty) {
-//
-//                            Toast.makeText(
-//                                this@RegisterActivity,
-//                                "Username taken",
-//                                Toast.LENGTH_SHORT
-//                            ).show()
-//
-//                        } else {
-//                            var imageView: ImageView = binding.imgUser
-//                            imageView.isDrawingCacheEnabled = true
-//                            imageView.buildDrawingCache()
-//                            if (imageView.drawable is BitmapDrawable) {
-//                                val bitmap = (imageView.drawable as BitmapDrawable).bitmap
-//                                val baos = ByteArrayOutputStream()
-//                                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-//                                val data = baos.toByteArray()
-//                                userRef.putBytes(data).await()
-//                            }
-//
-//                            db.collection("users")
-//                                .add(user)
-//                                .addOnSuccessListener { documentReference ->
-//
-//                                    var id = documentReference.id.toString()
-//
-//                                    var user: User = User(
-//                                        editUserName.text.toString(),
-//                                        editPassword.text.toString(),
-//                                        editName.text.toString(),
-//                                        editSurname.text.toString(),
-//                                        editPhone.text.toString(),
-//                                        "users/" + editUserName.text.toString() + ".jpg",
-//                                        0.0,
-//                                        0.0,
-//                                        0.0,
-//                                        0.0,
-//                                        id
-//                                    )
-//                                    var intent: Intent =
-//                                        Intent(this@RegisterActivity, MainActivity::class.java)
-//                                    // intent.putExtra("user", user)
-//                                    UserObject.apply {
-//                                        this.username = user.username
-//                                        this.password = user.password
-//                                        this.name = user.name
-//                                        this.surname = user.surname
-//                                        this.addCount = user.addCount
-//                                        this.commentsCount = user.commentsCount
-//                                        this.startCount = user.startCount
-//                                        this.overallScore=user.overallScore
-//
-//
-//                                    }
-//                                    startActivity(intent)
-//                                    finish()
-//
-//                                }
-//                                .addOnFailureListener { e ->
-//                                    Log.w("TAGA", "Error", e)
-//                                }
-//
-//                        }
-//                    } catch (e: java.lang.Exception) {
-//                        Log.w("TAGA", "Greska", e)
-//                    }
-//
-//
-//                }
             }
         }
     }
