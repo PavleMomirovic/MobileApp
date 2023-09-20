@@ -1,6 +1,5 @@
 package com.example.cheapsleep
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -20,13 +19,10 @@ import com.example.cheapsleep.model.PlacesListView
 import com.example.cheapsleep.model.UserDbModel
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import java.util.*
 class ReviewFragment : Fragment() {
     private val myPlacesViewModel: PlacesListView by activityViewModels()
     private var _binding: FragmentReviewBinding? = null
@@ -108,73 +104,13 @@ class ReviewFragment : Fragment() {
             }
         }
 
-//        CoroutineScope(Dispatchers.Main).launch {
-//            try {
-//                val result = withContext(Dispatchers.IO) {
-//                    myPlacesViewModel.selected?.id?.let {
-//                        db.collection("places")
-//                            .document(it)
-//                            .get()
-//                            .await()
-//                    }
-//
-//                }
-//
-//                if (result != null) {
-//                    val document = result.data
-//                    var hmGrades: HashMap<String, Double>? =
-//                        document?.get("grades") as HashMap<String, Double>?
-//
-//                    if (hmGrades?.get(userName) != null)
-//                        rate.rating = (hmGrades[userName] as Double).toFloat()
-//
-//                    var hmComments: HashMap<String, String>? =
-//                        document?.get("comments") as HashMap<String, String>?
-//                    if (hmComments?.get(userName) != null)
-//                        kom.setText(hmComments[userName]!!)
-//
-//                    var oldRate = rate.rating
-//                    val oldKomm = kom.text.toString()
-//
-//                    confirmbtn.setOnClickListener {
-//                        if (rate.rating != 0f)
-//                            myPlacesViewModel.selected?.addGrade(userName, rate.rating.toDouble())
-//
-//
-//                        myPlacesViewModel.selected?.addComment(userName, kom.text.toString())
-//                        if (document != null) {
-//                            document["grades"] = myPlacesViewModel.selected?.grades!!
-//                            document["comments"] = myPlacesViewModel.selected?.comments!!
-//
-//                            result.reference.set(document)
-//                        }
-//
-//
-//                        var increaseCommentsCount=false
-//                        var increaseStarsCount=false
-//                        if(oldRate==0f && rate.rating!=0f) increaseStarsCount=true
-//                        if(oldKomm.isEmpty() && kom.text.isNotEmpty()) increaseCommentsCount=true
-//
-//                        userDbModel.updateUserScore(userName,false,increaseStarsCount,increaseCommentsCount)
-//
-//
-//                        findNavController().popBackStack()
-//                    }
-//                }
-//
-//            } catch (e: java.lang.Exception) {
-//                Log.w("TAGA", "Greska", e)
-//            }
             cancelbtn.setOnClickListener {
                 findNavController().popBackStack()
             }
-//        }
-
 
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-//        _binding = null
     }
 }

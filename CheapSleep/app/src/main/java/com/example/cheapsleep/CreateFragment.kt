@@ -1,10 +1,8 @@
 package com.example.cheapsleep
 
-//import com.google.android.material.navigation.NavigationBarView
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -23,28 +21,16 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.example.cheapsleep.data.Place
-import com.example.cheapsleep.data.User
 import com.example.cheapsleep.data.UserObject
 import com.example.cheapsleep.databinding.FragmentCreateBinding
 import com.example.cheapsleep.model.LocationViewModel
 import com.example.cheapsleep.model.PlacesDbModel
 import com.example.cheapsleep.model.PlacesListView
 import com.example.cheapsleep.model.UserDbModel
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.StorageReference
-import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-import java.io.ByteArrayOutputStream
 import java.util.*
 
-/**
- * A simple [Fragment] subclass as the second destination in the navigation.
- */
 class CreateFragment : Fragment() {
 
     private var _binding: FragmentCreateBinding? = null
@@ -56,13 +42,7 @@ class CreateFragment : Fragment() {
 
     private var CAMERA_REQUEST_CODE = 0
     private var GALLERY_REQUEST_CODE = 0
-    private var db = Firebase.firestore
-    private var storage = Firebase.storage
 
-    var storageRef = storage.reference
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -110,20 +90,13 @@ class CreateFragment : Fragment() {
                     dropDown,
                     myPlacesViewModel.selected?.type
                 )
-            ) //please work
+            )
 
             viewLifecycleOwner.lifecycleScope.launch() {
                 try {
 
                     val path = myPlacesViewModel.selected?.imageUrl.toString()
-                    val imageRef = storageRef.child(path).downloadUrl.await()
-
-                    Log.d("TAGA", myPlacesViewModel.selected?.imageUrl.toString())
-                    Glide.with(this@CreateFragment).clear(imageView)
-                    Glide.with(this@CreateFragment)
-                        .load(imageRef)
-                        .transition(DrawableTransitionOptions.withCrossFade())
-                        .into(imageView)
+                    placesDbModel.getPlaceImg(path,requireContext(),imageView)
 
                 }
                 catch (e:Exception){
@@ -254,15 +227,12 @@ class CreateFragment : Fragment() {
             myPlacesViewModel.selected = null
             locationViewModel.setLocation("", "")
             findNavController().popBackStack()
-            //findNavController().navigate(R.id.action_EditFragment_to_ListFragment)
         }
 
         cancelButton.setOnClickListener {
             myPlacesViewModel.selected = null
             locationViewModel.setLocation("", "")
             findNavController().popBackStack()
-
-            //findNavController().navigate(R.id.action_EditFragment_to_ListFragment)
         }
         cameraButton.setOnClickListener {
             val cameraPermission = android.Manifest.permission.CAMERA
@@ -296,8 +266,6 @@ class CreateFragment : Fragment() {
                 )
             }
         }
-
-
     }
 
     private fun getIndex(dropDown: Spinner, type: String?): Int {
@@ -349,13 +317,11 @@ class CreateFragment : Fragment() {
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
-//        menu.setGroupVisible(R.id.menu_group,false)
 
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         myPlacesViewModel.selected = null
-//        _binding = null
     }
 }

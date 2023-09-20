@@ -1,5 +1,6 @@
 package com.example.cheapsleep.model
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.media.Image
@@ -8,6 +9,8 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModel
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.example.cheapsleep.MainActivity
 import com.example.cheapsleep.data.MapObject
 import com.example.cheapsleep.data.Place
@@ -284,6 +287,17 @@ class PlacesDbModel: ViewModel() {
 
         return finalList
 
+    }
+
+    suspend fun getPlaceImg(path :String,ctx:Context,imageView:ImageView){
+
+        val imageRef = storageRef.child(path).downloadUrl.await()
+
+        Glide.with(ctx).clear(imageView)
+        Glide.with(ctx)
+            .load(imageRef)
+            .transition(DrawableTransitionOptions.withCrossFade())
+            .into(imageView)
     }
 
 }

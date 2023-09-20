@@ -43,7 +43,7 @@
     <string name="list_fragment_tip_rb">Type</string>
     <string name="list_fragment_ocena_rb">Price</string>
     <string name="list_fragment_datum_rb">Date</string>
-    <string name="list_fragment_format_label">Format datuma je: ddMMyyyy</string>
+    <string name="list_fragment_format_label">Date format is: ddMMyyyy</string>
     <string name="list_fragment_datumod_label">From date:</string>
     <string name="list_fragment_datumdo_label">Until date:</string>
     <string name="list_fragment_ok_btn">OK</string>

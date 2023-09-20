@@ -13,33 +13,21 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.example.cheapsleep.data.MapObject
 import com.example.cheapsleep.data.Place
 import com.example.cheapsleep.data.UserObject
 import com.example.cheapsleep.databinding.FragmentListBinding
 import com.example.cheapsleep.model.PlacesDbModel
 import com.example.cheapsleep.model.PlacesListView
-import com.google.firebase.firestore.QuerySnapshot
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 
-/**
- * A simple [Fragment] subclass as the default destination in the navigation.
- */
 class ListFragment : Fragment() {
 
     private var _binding: FragmentListBinding? = null
-    private val db = Firebase.firestore
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
-    private var searchType: String = "name"
-
     private val binding get() = _binding!!
 
     private val placesListView: PlacesListView by activityViewModels()
@@ -64,8 +52,6 @@ class ListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-//        val listView: ListView = requireView().findViewById(R.id.my_places_list)
 
         arrayAdapter = ArrayAdapter(
             requireContext(),
@@ -194,51 +180,11 @@ class ListFragment : Fragment() {
             viewLifecycleOwner.lifecycleScope.launch {
                 try {
 
-//                    arrayAdapter.clear()
                     var tmpList:MutableList<Place>
                     withContext(Dispatchers.IO) {
                         tmpList=placesDbModel.getPlaces().toMutableList()
                     }
-//                    val tmpList = createList((result)).toMutableList()
-                    val newList = mutableListOf<Place>()
-                    for (item in tmpList) {
-                        when (selected) {
-                            1 -> {
-                                if (item.author.isNotEmpty() && item.author == textZaPretragu) newList.add(item)
-                            }
-                            2 -> {
-                                if (item.type.isNotEmpty() && item.type == textZaPretragu) newList.add(item)
-                            }
-                            3 -> {
-                                if (item.price.isNotEmpty() && item.price.toDouble() <= textZaPretragu.toDouble()) newList.add(
-                                    item
-                                )
-                            }
-                            4 -> {
-                                if (datDoMillis > 0) {
-                                    if (datOdMillis > 0) {
-                                        if (((item.date?.time
-                                                ?: datOdMillis) >= datOdMillis) && ((item.date?.time
-                                                ?: datDoMillis) <= datDoMillis)
-                                        ) {
-                                            newList.add(item)
-                                        }
-                                    } else {
-                                        if ((item.date?.time ?: datDoMillis) <= datDoMillis) {
-                                            newList.add(item)
-                                        }
-                                    }
-                                } else {
-                                    if (((item.date?.time ?: datOdMillis) >= datOdMillis)
-                                    ) {
-                                        newList.add(item)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    newList.sortBy { it.price }
-//                    placesListView.myPlacesList.addAll(tmpList)
+                    val newList=filterList(tmpList,selected,textZaPretragu)
                     arrayAdapter.clear()
                     arrayAdapter.addAll(newList)
                     showList(requireView())
@@ -247,20 +193,16 @@ class ListFragment : Fragment() {
                     Log.w("TAGA", "Greska", e)
                 }
             }
-
-
-//            getList()
         }
     }
 
-    fun showList(view: View) {
+    private fun showList(view: View) {
 
         arrayAdapter.notifyDataSetChanged()
         val listView: ListView = binding.myPlacesList
 
         listView.setOnItemClickListener(object : AdapterView.OnItemClickListener {
             override fun onItemClick(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-                var Place: Place = p0?.adapter?.getItem(p2) as Place
                 Toast.makeText(view.context, "Hold for more options!", Toast.LENGTH_SHORT).show()
             }
         })
@@ -272,6 +214,48 @@ class ListFragment : Fragment() {
             showPopupMenu(view, position)
             true
         }
+    }
+
+    private fun filterList(tmpList:MutableList<Place>,selected:Int,textZaPretragu:String): MutableList<Place> {
+        val newList = mutableListOf<Place>()
+        for (item in tmpList) {
+            when (selected) {
+                1 -> {
+                    if (item.author.isNotEmpty() && item.author == textZaPretragu) newList.add(item)
+                }
+                2 -> {
+                    if (item.type.isNotEmpty() && item.type == textZaPretragu) newList.add(item)
+                }
+                3 -> {
+                    if (item.price.isNotEmpty() && item.price.toDouble() <= textZaPretragu.toDouble()) newList.add(
+                        item
+                    )
+                }
+                4 -> {
+                    if (datDoMillis > 0) {
+                        if (datOdMillis > 0) {
+                            if (((item.date?.time
+                                    ?: datOdMillis) >= datOdMillis) && ((item.date?.time
+                                    ?: datDoMillis) <= datDoMillis)
+                            ) {
+                                newList.add(item)
+                            }
+                        } else {
+                            if ((item.date?.time ?: datDoMillis) <= datDoMillis) {
+                                newList.add(item)
+                            }
+                        }
+                    } else {
+                        if (((item.date?.time ?: datOdMillis) >= datOdMillis)
+                        ) {
+                            newList.add(item)
+                        }
+                    }
+                }
+            }
+        }
+        newList.sortBy { it.price }
+        return newList
     }
 
 
@@ -309,26 +293,18 @@ class ListFragment : Fragment() {
 
             when (menuItem.itemId) {
                 R.id.viewPlace -> {
-
                     findNavController().navigate(R.id.action_ListFragment_to_ViewPlaceFragment)
                     true
                 }
-
                 R.id.editPlace -> {
-
                     findNavController().navigate(R.id.action_ListFragment_to_CreateFragment)
-
                     true
                 }
-
                 R.id.showOnMap -> {
-
                     this.findNavController().navigate(R.id.action_ListFragment_to_MapFragment)
-
                     true
                 }
                 R.id.delete ->{
-
                     viewLifecycleOwner.lifecycleScope.launch {
                         try {
                             var tmpList= arrayListOf<Place>()
@@ -345,15 +321,12 @@ class ListFragment : Fragment() {
                             Log.w("TAGA", "Greska", e)
                         }
                     }
-
                     Toast.makeText(requireContext(),"Your place deleted",Toast.LENGTH_SHORT).show()
                     true
                 }
-
                 else -> false
             }
         }
-
         popupMenu.show()
     }
 

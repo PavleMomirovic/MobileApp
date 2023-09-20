@@ -1,30 +1,20 @@
 package com.example.cheapsleep
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.widget.ArrayAdapter
 import android.widget.ListView
-import android.widget.Switch
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import com.example.cheapsleep.data.User
 import com.example.cheapsleep.databinding.FragmentLeaderboardBinding
 import com.example.cheapsleep.model.LeaderboardAdapter
 import com.example.cheapsleep.model.UserDbModel
-//import com.example.cheapsleep.model.UserListAdapter
-import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 
@@ -55,7 +45,7 @@ class LeaderboardFragment : Fragment() {
 
     }
 
-    fun createList() {
+    private fun createList() {
             try {
             lifecycleScope.launch{
                 withContext(Dispatchers.IO){
@@ -73,7 +63,7 @@ class LeaderboardFragment : Fragment() {
         }
     }
 
-    fun showList(view: View, arrayList: java.util.ArrayList<User>) {
+    private fun showList(view: View, arrayList: java.util.ArrayList<User>) {
 
 
         val listView: ListView = requireView().findViewById(R.id.listUsers)

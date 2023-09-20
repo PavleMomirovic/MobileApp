@@ -18,7 +18,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import com.example.cheapsleep.data.ILocationClient
 import com.example.cheapsleep.data.MapObject
-import com.example.cheapsleep.data.Place
 import com.example.cheapsleep.databinding.FragmentMapBinding
 import com.example.cheapsleep.model.LocationViewModel
 import com.example.cheapsleep.model.PlacesDbModel
@@ -37,23 +36,14 @@ import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Overlay
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
-import kotlin.math.PI
-import kotlin.math.atan2
-import kotlin.math.cos
-import kotlin.math.sin
+
 
 
 class MapFragment : Fragment(), ILocationClient {
     lateinit var map:MapView
     private val locationViewModel: LocationViewModel by activityViewModels()
-    private val myPlacesListView:PlacesListView by activityViewModels()
-    private val db = Firebase.firestore
     private lateinit var binding: FragmentMapBinding
     private lateinit var myMarker: Marker
-    private var myPosition: GeoPoint = GeoPoint(0.0, 0.0)
-    private var isFirstLocation = true
     private var objectsOnMapMarkers = mutableListOf<Overlay>()
     private lateinit var placesDbModel: PlacesDbModel
 
@@ -62,7 +52,6 @@ class MapFragment : Fragment(), ILocationClient {
         placesDbModel = ViewModelProvider(this)[PlacesDbModel::class.java]
 
     }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
