@@ -12,17 +12,22 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import com.example.cheapsleep.data.ILocationClient
 import com.example.cheapsleep.data.MapObject
+import com.example.cheapsleep.data.Place
 import com.example.cheapsleep.databinding.FragmentMapBinding
 import com.example.cheapsleep.model.LocationViewModel
+import com.example.cheapsleep.model.PlacesDbModel
 import com.example.cheapsleep.model.PlacesListView
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.util.GeoPoint
@@ -50,8 +55,12 @@ class MapFragment : Fragment(), ILocationClient {
     private var myPosition: GeoPoint = GeoPoint(0.0, 0.0)
     private var isFirstLocation = true
     private var objectsOnMapMarkers = mutableListOf<Overlay>()
+    private lateinit var placesDbModel: PlacesDbModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        placesDbModel = ViewModelProvider(this)[PlacesDbModel::class.java]
+
     }
 
     override fun onCreateView(
@@ -80,7 +89,7 @@ class MapFragment : Fragment(), ILocationClient {
         } else {
             setupMap()
             viewLifecycleOwner.lifecycleScope.launch() {
-                showObjects(getObjectsForShow())
+                showObjects()
             }
 
             binding.radiusEt.addTextChangedListener(object : TextWatcher {
@@ -92,14 +101,14 @@ class MapFragment : Fragment(), ILocationClient {
 
                 override fun afterTextChanged(s: Editable?) {
                     viewLifecycleOwner.lifecycleScope.launch() {
-                        showObjects(getObjectsForShow())
+                        showObjects()
                     }
                 }
             })
 
             binding.radioGroup.setOnCheckedChangeListener { _, _ ->
                     viewLifecycleOwner.lifecycleScope.launch() {
-                        showObjects(getObjectsForShow())
+                        showObjects()
                     }
                 }
 
@@ -156,66 +165,36 @@ class MapFragment : Fragment(), ILocationClient {
         var overlayEvents=MapEventsOverlay(receive)
         map.overlays.add(overlayEvents)
     }
-    private suspend fun getObjectsForShow():MutableList<MapObject>{
-        return suspendCoroutine { continuation ->
-
-        db.collection("places").get()
-
-            .addOnSuccessListener { snapshot ->
-                snapshot?.let {
-                    val objects = it.documents.mapNotNull { documentSnapshot ->
-                        val obj = documentSnapshot.toObject(MapObject::class.java)?.also { obj ->
-                            obj.id = documentSnapshot.id
-                        }
-                        obj
-                    }.toMutableList()
-
-                    continuation.resume(objects)
-                }
-
-                }
-            }
-    }
-    private suspend fun showObjects(listOfObjects:MutableList<MapObject>) {
+    private suspend fun showObjects() {
         for (marker in objectsOnMapMarkers)
             binding.map.overlays.remove(marker)
         objectsOnMapMarkers.clear()
 
-
-        val myLocation = MainActivity.curLocation!!
-        val earthRadius = 6371.0F
-        var radius = earthRadius
-
+        var radius=0f
         if (!binding.sviObjRadio.isChecked and binding.radiusEt.text.isNotEmpty()) {
             radius = binding.radiusEt.text.toString().toFloat()
         }
-        val latDelta = radius / earthRadius
-        val lonDelta = atan2(
-            sin(latDelta) * cos(myLocation.latitude),
-            cos(latDelta) - sin(myLocation.latitude) * sin(myLocation.latitude)
-        )
-        val minLat = myLocation.latitude - latDelta * (180 / PI)
-        val maxLat = myLocation.latitude + latDelta * (180 / PI)
-        val minLon = myLocation.longitude - lonDelta * (180 / PI)
-        val maxLon = myLocation.longitude + lonDelta * (180 / PI)
 
-        Log.d("TAGA", "$listOfObjects")
-        for (obj in listOfObjects) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                var listOfObjects= arrayListOf<MapObject>()
+                withContext(Dispatchers.IO) {
+                    listOfObjects=placesDbModel.getPlacesInRadius(radius)
+                }
+                for (obj in listOfObjects) {
+                    objectsOnMapMarkers.add(Marker(binding.map).apply {
+                        this.position = GeoPoint(obj.latitude.toDouble(), obj.longitude.toDouble())
+                        title = obj.name
+                    })
+                }
 
-            val center = GeoPoint(obj.latitude.toDouble(), obj.longitude.toDouble())
-            if (obj.longitude.toDouble() > minLon && obj.longitude.toDouble() < maxLon && obj.latitude.toDouble() > minLat && obj.latitude.toDouble() < maxLat) {
+                binding.map.overlays.addAll(objectsOnMapMarkers)
+                binding.map.invalidate()
 
-                objectsOnMapMarkers.add(Marker(binding.map).apply {
-                    this.position = center
-                    title = obj.name
-                })
+            } catch (e: Exception) {
+                Log.w("TAGA", "Greska", e)
             }
         }
-
-
-        binding.map.overlays.addAll(objectsOnMapMarkers)
-        binding.map.invalidate()
-
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

@@ -8,6 +8,7 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModel
+import com.example.cheapsleep.MainActivity
 import com.example.cheapsleep.data.MapObject
 import com.example.cheapsleep.data.Place
 import com.example.cheapsleep.data.ReviewPair
@@ -21,11 +22,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.overlay.Marker
 import java.io.ByteArrayOutputStream
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import kotlin.math.PI
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
 
 class PlacesDbModel: ViewModel() {
     private var db = Firebase.firestore
@@ -233,40 +241,49 @@ class PlacesDbModel: ViewModel() {
             .addOnFailureListener { e -> Log.w("TAGA", "Error deleting document", e) }
     }
 
-//    suspend fun getPlacesInRadius(){
-//        val result = withContext(Dispatchers.IO) {
-//            db.collection("places")
-//                .get()
-//                .await()
-//        }
-//        var list: kotlin.collections.ArrayList<MapObject> = ArrayList()
-//        for (document in result) {
-//            var data = document.data
-//
-//            var date: Date? = null
-//            if (data["date"] != null) {
-//
-//            list.add(
-//                MapObject(
-//                    data["name"].toString(),
-//                    data["description"].toString(),
-//                    data["longitude"].toString(),
-//                    data["latitude"].toString(),
-//                    data["price"].toString(),
-//                    data["type"].toString(),
-//                    data["author"].toString(),
-//                    date,
-//                    data["imageUrl"].toString(),
-//                    grades,
-//                    comments,
-//                    document.id
-//                )
-//            )
-//
-//            }
-//        }
-//        return list
-//
-//    }
+    suspend fun getPlacesInRadius(radius:Float): ArrayList<MapObject> {
+        val result = withContext(Dispatchers.IO) {
+            db.collection("places")
+                .get()
+                .await()
+        }
+        var listOfAll: kotlin.collections.ArrayList<MapObject> = ArrayList()
+        var finalList: ArrayList<MapObject> =ArrayList()
+        for (document in result) {
+            var data = document.data
+
+            listOfAll.add(
+                MapObject(
+                    data["longitude"].toString(),
+                    data["latitude"].toString(),
+                    data["name"].toString()
+                )
+            )
+        }
+
+        val myLocation = MainActivity.curLocation!!
+        val earthRadius = 6371.0F
+        var myRadius=radius
+        if (myRadius==0f) myRadius=earthRadius
+
+        val latDelta = myRadius / earthRadius
+        val lonDelta = atan2(
+            sin(latDelta) * cos(myLocation.latitude),
+            cos(latDelta) - sin(myLocation.latitude) * sin(myLocation.latitude)
+        )
+        val minLat = myLocation.latitude - latDelta * (180 / PI)
+        val maxLat = myLocation.latitude + latDelta * (180 / PI)
+        val minLon = myLocation.longitude - lonDelta * (180 / PI)
+        val maxLon = myLocation.longitude + lonDelta * (180 / PI)
+
+        for (obj in listOfAll) {
+            if (obj.longitude.toDouble() > minLon && obj.longitude.toDouble() < maxLon && obj.latitude.toDouble() > minLat && obj.latitude.toDouble() < maxLat) {
+                finalList.add(obj)
+            }
+        }
+
+        return finalList
+
+    }
 
 }
