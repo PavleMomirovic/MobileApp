@@ -20,7 +20,6 @@ import com.example.cheapsleep.data.MapObject
 import com.example.cheapsleep.databinding.FragmentMapBinding
 import com.example.cheapsleep.model.LocationViewModel
 import com.example.cheapsleep.model.PlacesListView
-import com.google.firebase.firestore.Source
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
@@ -46,7 +45,6 @@ class MapFragment : Fragment(), ILocationClient {
     private val locationViewModel: LocationViewModel by activityViewModels()
     private val myPlacesListView:PlacesListView by activityViewModels()
     private val db = Firebase.firestore
-//    private val storage: StorageReference
     private lateinit var binding: FragmentMapBinding
     private lateinit var myMarker: Marker
     private var myPosition: GeoPoint = GeoPoint(0.0, 0.0)
@@ -54,14 +52,12 @@ class MapFragment : Fragment(), ILocationClient {
     private var objectsOnMapMarkers = mutableListOf<Overlay>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         binding= FragmentMapBinding.inflate(inflater,container,false)
         return binding.root
     }
@@ -72,7 +68,7 @@ class MapFragment : Fragment(), ILocationClient {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         super.onViewCreated(view, savedInstanceState)
-        var ctx: Context = requireActivity()!!.getApplicationContext()  //ovde treba:  Context? = getActivity()?...  ali onda dole dobijam type missmatch
+        var ctx: Context = requireActivity()!!.getApplicationContext()
         Configuration.getInstance().load(ctx,PreferenceManager.getDefaultSharedPreferences((ctx)))
         map=requireView().findViewById<MapView>(R.id.map)
         map.setMultiTouchControls(true)
@@ -106,14 +102,9 @@ class MapFragment : Fragment(), ILocationClient {
                         showObjects(getObjectsForShow())
                     }
                 }
-//                binding.radiusEt.isEnabled = binding.objWithRadiusRadio.isChecked
 
             }
-//            setMyLocationOverlay()
-//            setOnMapClickOverlay()
-//        map.controller.setZoom(15.0)
-//        val startPoint=GeoPoint(43.32,21.89)
-//        map.controller.setCenter(startPoint)
+
         MainActivity.iLocationClient = this
 
     }
@@ -178,11 +169,6 @@ class MapFragment : Fragment(), ILocationClient {
                         }
                         obj
                     }.toMutableList()
-//                    for(obj in objects){
-//                        if (obj.longitude.toDouble()<minLon || obj.longitude.toDouble()>maxLon ||obj.latitude.toDouble()<minLat || obj.latitude.toDouble()>maxLat ){
-//                            objects.remove(obj)
-//                        }
-//                    }
 
                     continuation.resume(objects)
                 }

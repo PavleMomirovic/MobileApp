@@ -61,6 +61,7 @@
     <string name="review_fragment_label">Write a review</string>
     <string name="cameraPlace">Camera</string>
     <string name="galleryPlace">Gallery</string>
+    <string name="delete">Delete</string>
 
     <string-array name="TypesOfPlaces">
         <item>Choose accomodation type</item>

@@ -91,14 +91,12 @@ class ListFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                arrayAdapter.clear()
-
+                var tmpList= arrayListOf<Place>()
                 withContext(Dispatchers.IO) {
-                    arrayAdapter.addAll(placesDbModel.getPlaces())
+                    tmpList=placesDbModel.getPlaces()
                 }
-//                placesListView.myPlacesList.addAll()
-//                arrayAdapter.addAll(createList(result))
-
+                arrayAdapter.clear()
+                arrayAdapter.addAll(tmpList)
                 showList(requireView())
                 Log.d("TAGA", "s" + placesListView.myPlacesList.size.toString())
             } catch (e: Exception) {
@@ -125,12 +123,13 @@ class ListFragment : Fragment() {
             viewLifecycleOwner.lifecycleScope.launch {
                 try {
 
-                    arrayAdapter.clear()
-
+                    var tmpList= arrayListOf<Place>()
                     withContext(Dispatchers.IO) {
-                        arrayAdapter.addAll(placesDbModel.getPlaces())
-                        showList(requireView())
+                        tmpList=placesDbModel.getPlaces()
                     }
+                    arrayAdapter.clear()
+                    arrayAdapter.addAll(tmpList)
+                    showList(requireView())
                     datDoMillis = 0
                     datOdMillis = 0
                     binding.btnDatDo.text = ""
@@ -195,7 +194,7 @@ class ListFragment : Fragment() {
             viewLifecycleOwner.lifecycleScope.launch {
                 try {
 
-                    arrayAdapter.clear()
+//                    arrayAdapter.clear()
                     var tmpList:MutableList<Place>
                     withContext(Dispatchers.IO) {
                         tmpList=placesDbModel.getPlaces().toMutableList()
@@ -256,7 +255,6 @@ class ListFragment : Fragment() {
 
     fun showList(view: View) {
 
-
         arrayAdapter.notifyDataSetChanged()
         val listView: ListView = binding.myPlacesList
 
@@ -297,59 +295,14 @@ class ListFragment : Fragment() {
         ).show()
     }
 
-
-//    private fun createList(result: QuerySnapshot): kotlin.collections.ArrayList<Place> {
-//
-//        var list: kotlin.collections.ArrayList<Place> = ArrayList()
-//        for (document in result) {
-//            var data = document.data
-//            var grades = HashMap<String, Double>()
-//            if (data["grades"] != null) {
-//                for (g in data["grades"] as HashMap<String, Double>)
-//                    grades[g.key] = g.value
-//            }
-//            var comments = HashMap<String, String>()
-//            if (data["comments"] != null) {
-//                for (c in data["comments"] as HashMap<String, String>)
-//                    comments[c.key] = c.value
-//            }
-//            var date: Date? = null
-//            if (data["date"] != null) {
-//
-//                val timestamp: com.google.firebase.Timestamp? =
-//                    document.getTimestamp("date")
-//                date = timestamp?.toDate()
-////
-////            }
-//
-//                list.add(
-//                    Place(
-//                        data["name"].toString(),
-//                        data["description"].toString(),
-//                        data["longitude"].toString(),
-//                        data["latitude"].toString(),
-//                        data["price"].toString(),
-//                        data["type"].toString(),
-//                        data["author"].toString(),
-//                        date,
-//                        data["imageUrl"].toString(),
-//                        grades,
-//                        comments,
-//                        document.id
-//                    )
-//                )
-//
-//            }
-//        }
-//        return list
-//    }
-
     private fun showPopupMenu(view: View, position: Int) {
         val popupMenu = PopupMenu(requireContext(), view)
         popupMenu.menuInflater.inflate(R.menu.popup_menu, popupMenu.menu)
         if (!placesListView.selected!!.author.equals(UserObject.username)) {
             val myEditItem = popupMenu.menu.findItem(R.id.editPlace)
+            val myDeleteItem = popupMenu.menu.findItem(R.id.delete)
             myEditItem.isVisible = false
+            myDeleteItem.isVisible=false
         }
 
         popupMenu.setOnMenuItemClickListener { menuItem ->
@@ -372,6 +325,28 @@ class ListFragment : Fragment() {
 
                     this.findNavController().navigate(R.id.action_ListFragment_to_MapFragment)
 
+                    true
+                }
+                R.id.delete ->{
+
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        try {
+                            var tmpList= arrayListOf<Place>()
+                            withContext(Dispatchers.IO) {
+                                placesDbModel.deletePlace(placesListView.selected?.id.toString())
+
+                                tmpList=placesDbModel.getPlaces()
+                            }
+                            arrayAdapter.clear()
+                            arrayAdapter.addAll(tmpList)
+                            showList(requireView())
+                            Log.d("TAGA", "s" + placesListView.myPlacesList.size.toString())
+                        } catch (e: Exception) {
+                            Log.w("TAGA", "Greska", e)
+                        }
+                    }
+
+                    Toast.makeText(requireContext(),"Your place deleted",Toast.LENGTH_SHORT).show()
                     true
                 }
 

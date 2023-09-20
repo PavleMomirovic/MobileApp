@@ -186,15 +186,6 @@ class CreateFragment : Fragment() {
 
                 //EDIT MODE:
 
-//                myPlacesViewModel.selected?.name = name
-//                myPlacesViewModel.selected?.description = desc
-//                myPlacesViewModel.selected?.longitude = longitude
-//                myPlacesViewModel.selected?.latitude = latitude
-//                myPlacesViewModel.selected?.price = price
-//                myPlacesViewModel.selected?.type = typeSelected
-//                myPlacesViewModel.selected?.author = UserObject.username.toString()
-//                myPlacesViewModel.selected?.date = Date()
-
                 val place = Place(
                     name,
                     desc,

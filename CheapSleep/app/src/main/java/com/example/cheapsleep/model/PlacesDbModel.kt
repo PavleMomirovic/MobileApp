@@ -8,6 +8,7 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModel
+import com.example.cheapsleep.data.MapObject
 import com.example.cheapsleep.data.Place
 import com.example.cheapsleep.data.ReviewPair
 import com.example.cheapsleep.data.UserObject
@@ -23,6 +24,8 @@ import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.util.*
 import kotlin.collections.HashMap
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class PlacesDbModel: ViewModel() {
     private var db = Firebase.firestore
@@ -222,5 +225,48 @@ class PlacesDbModel: ViewModel() {
         }
         return list
     }
+
+    fun deletePlace(id:String){
+        db.collection("places").document(id)
+            .delete()
+            .addOnSuccessListener { Log.d("TAGA", "DocumentSnapshot successfully deleted!") }
+            .addOnFailureListener { e -> Log.w("TAGA", "Error deleting document", e) }
+    }
+
+//    suspend fun getPlacesInRadius(){
+//        val result = withContext(Dispatchers.IO) {
+//            db.collection("places")
+//                .get()
+//                .await()
+//        }
+//        var list: kotlin.collections.ArrayList<MapObject> = ArrayList()
+//        for (document in result) {
+//            var data = document.data
+//
+//            var date: Date? = null
+//            if (data["date"] != null) {
+//
+//            list.add(
+//                MapObject(
+//                    data["name"].toString(),
+//                    data["description"].toString(),
+//                    data["longitude"].toString(),
+//                    data["latitude"].toString(),
+//                    data["price"].toString(),
+//                    data["type"].toString(),
+//                    data["author"].toString(),
+//                    date,
+//                    data["imageUrl"].toString(),
+//                    grades,
+//                    comments,
+//                    document.id
+//                )
+//            )
+//
+//            }
+//        }
+//        return list
+//
+//    }
 
 }
